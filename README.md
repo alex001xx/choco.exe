@@ -1231,11 +1231,7 @@ local Window = WindUI:CreateWindow({
     Title="chocofresa 🍓", Icon="sword", Author="TKT🍰", Folder="DENJI•ALEX",
     Size=UDim2.fromOffset(600,540), MinSize=Vector2.new(520,420), MaxSize=Vector2.new(850,680),
     Transparent=true, Theme="Dark", Resizable=true, SideBarWidth=160,
-    Background =
-
-"rbxassetid://88756343492781",
-
-BackgroundImageTransparency = 0.35,, Accent=Color3.fromRGB(255,255,255),
+    Background="", HideSearchBar=true, Accent=Color3.fromRGB(255,255,255),
     OpenButton={Title="TKT🍰", Icon="sword", Enabled=true, Draggable=true, OnlyMobile=false, CornerRadius=UDim.new(1,0), StrokeThickness=2, StrokeColor=Color3.fromRGB(255,255,255), Scale=1},
 })
 
@@ -2141,7 +2137,7 @@ end)
 pcall(function() Window:SelectTab(PlayerTab) end)
 pcall(function() Window:SelectTab(1) end)
 
-WindUI:Notify({Hola})
+WindUI:Notify({Title="TKT🍰", Content="v33: Invisible Ultra integrado en pestaña Main (toggle + tecla G)", Duration=4})
 
 -- [v33] La función "Invisible Ultra" (antes el botón flotante TK del final) ya está
 -- integrada como toggle en la pestaña Main y con atajo de tecla G. Se eliminó el
