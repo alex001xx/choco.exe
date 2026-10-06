@@ -1,3 +1,8 @@
+-- ==============================================================
+-- TKSH v35 — Script completo corregido (final arreglado)
+-- Tema: Amarillo Pastel | UI: WindUI
+-- ==============================================================
+
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -21,7 +26,6 @@ FallSpeedCap, SavedPosition, CoordsText, ClickTPConn, SpinConn = 200, nil, "", n
 AutoWalkEnabled, AutoWalkConn = false, nil
 TPWalkEnabled, TPWalkSpeed, TPWalkConn = false, 0.30, nil
 InvisibleEnabled = false
--- [v34] Tema Amarillo Pastel + fondo más claro
 HidePosEnabled, HidePosConn, HideParts = false, nil, {}
 AutoClickerEnabled, AutoClickerCPS = false, 10
 NoFallDamageEnabled, NoFallConn = false, nil
@@ -37,25 +41,25 @@ local FlashAttackEnabled = false
 local FlashMultiplier = 5
 local FlashConn = nil
 
--- 🛡️ SIT PROTECTOR (Escudo)
+-- 🛡️ SIT PROTECTOR
 local SitProtectorEnabled = false
 local SitConexiones = {}
 local SitEstadosOriginales = {}
 local SitGui = nil
 
--- 🛡️ NUEVOS ESCUDOS REALES (antes no hacían nada)
+-- 🛡️ ESCUDOS REALES
 local AntiKickEnabled, AntiResetEnabled, AntiSitEnabled = false, false, false
 local AntiFlingEnabled, AntiFreezeEnabled, AntiReportEnabled = false, false, false
 local AntiKickHooked = false
 local OldNameCall = nil
 
--- 🎙️ ANTI-VC ULTRA (integrado como escudo)
+-- 🎙️ ANTI-VC ULTRA
 local AntiVCEnabled = false
 local AntiVCConn, AntiVCFastConn = nil, nil
 local VoiceChatService = nil
 pcall(function() VoiceChatService = game:GetService("VoiceChatService") end)
 
--- 🎯 MODULO TARGET (integrado a WindUI)
+-- 🎯 MODULO TARGET
 local TargetToggles = {Fling=false, View=false, Focus=false, Bang=false, HeadSit=false, Stand=false, Backpack=false, Doggy=false, Drag=false}
 local TargetedPlayerName = nil
 local TargetWhitelist = {}
@@ -145,7 +149,8 @@ local function SetInfJump(state)
         end) end
     else if InfJumpConn then InfJumpConn:Disconnect(); InfJumpConn=nil end end
 end
--- TPWALK NUEVO (Anti-Rubberband + Shift Lock + Joystick OK) integrado a WindUI
+
+-- TPWALK
 getgenv().TPWalkEnabled = false
 getgenv().TPWalkSpeed = TPWalkSpeed
 local function SetTPWalk(s)
@@ -155,27 +160,19 @@ local function SetTPWalk(s)
         if not TPWalkConn then
             TPWalkConn = RunService.RenderStepped:Connect(function()
                 if not getgenv().TPWalkEnabled then return end
-
                 local character = LocalPlayer.Character
                 if not character then return end
-
                 local humanoid = character:FindFirstChildOfClass("Humanoid")
                 local hrp = character:FindFirstChild("HumanoidRootPart")
                 local camera = workspace.CurrentCamera
-
                 if not humanoid or not hrp or not camera then return end
-
-                -- Anti-Rubberband
                 humanoid.Sit = true
                 humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
                 humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
                 humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
                 humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, false)
                 humanoid.PlatformStand = false
-
-                -- Detectar Shift Lock
                 local shiftLockActivo = (UserInputService.MouseBehavior == Enum.MouseBehavior.LockCenter)
-
                 if shiftLockActivo then
                     humanoid.AutoRotate = false
                     local camLook = camera.CFrame.LookVector
@@ -184,7 +181,6 @@ local function SetTPWalk(s)
                 else
                     humanoid.AutoRotate = true
                 end
-
                 if humanoid.MoveDirection.Magnitude > 0.1 then
                     local speedMultiplier = getgenv().TPWalkSpeed * 55
                     hrp.AssemblyLinearVelocity = Vector3.new(
@@ -214,7 +210,7 @@ local function SetTPWalk(s)
     end
 end
 
--- ⚔️ FUNCIÓN ATAQUE RÁPIDO
+-- ⚔️ ATAQUE RÁPIDO
 local function SetFlashAttack(s)
     FlashAttackEnabled = s
     if s then
@@ -224,9 +220,7 @@ local function SetFlashAttack(s)
                 local tool = Character:FindFirstChildWhichIsA("Tool")
                 if not tool then return end
                 pcall(function()
-                    for _ = 1, FlashMultiplier do
-                        tool:Activate()
-                    end
+                    for _ = 1, FlashMultiplier do tool:Activate() end
                     for _, v in pairs(tool:GetDescendants()) do
                         if v:IsA("NumberValue") or v:IsA("IntValue") then
                             local name = v.Name:lower()
@@ -243,27 +237,23 @@ local function SetFlashAttack(s)
     end
 end
 
--- 🛡️ FUNCIÓN SIT PROTECTOR (Escudo) — amarillo pastel
+-- 🛡️ SIT PROTECTOR
 local function GuardarEstadosOriginalesSit(Personaje)
     if not Personaje then return end
     local Hum = Personaje:FindFirstChildWhichIsA("Humanoid")
     if not Hum then return end
     SitEstadosOriginales = {
-        Sit = false,
-        PlatformStand = false,
-        AutoRotate = true,
+        Sit = false, PlatformStand = false, AutoRotate = true,
         Seated = Hum:GetStateEnabled(Enum.HumanoidStateType.Seated),
         FallingDown = Hum:GetStateEnabled(Enum.HumanoidStateType.FallingDown),
         Ragdoll = Hum:GetStateEnabled(Enum.HumanoidStateType.Ragdoll),
         PlatformStanding = Hum:GetStateEnabled(Enum.HumanoidStateType.PlatformStanding),
     }
 end
-
 local function RestaurarTodoNormalSit()
     local Pj = LocalPlayer.Character
     if not Pj then return end
     local Hum = Pj:FindFirstChildWhichIsA("Humanoid")
-    local Raiz = Pj:FindFirstChild("HumanoidRootPart")
     if not Hum then return end
     Hum.Sit = SitEstadosOriginales.Sit
     Hum.PlatformStand = SitEstadosOriginales.PlatformStand
@@ -273,68 +263,46 @@ local function RestaurarTodoNormalSit()
     Hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, SitEstadosOriginales.Ragdoll)
     Hum:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, SitEstadosOriginales.PlatformStanding)
 end
-
 local function CrearSitGui()
     if SitGui then return end
     local Gui = Instance.new("ScreenGui")
-    Gui.Name = "SitProtector"
-    Gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-    Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    Gui.ResetOnSpawn = false
-
+    Gui.Name = "SitProtector"; Gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+    Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling; Gui.ResetOnSpawn = false
     local Marco = Instance.new("Frame")
-    Marco.Size = UDim2.new(0, 120, 0, 55)
-    Marco.Position = UDim2.new(0.02, 0, 0.02, 0)
+    Marco.Size = UDim2.new(0, 120, 0, 55); Marco.Position = UDim2.new(0.02, 0, 0.02, 0)
     Marco.BackgroundColor3 = Color3.fromRGB(255, 245, 190)
-    Marco.BorderColor3 = Color3.fromRGB(240, 215, 110)
-    Marco.BorderSizePixel = 2
-    Marco.Active = true
-    Marco.Draggable = true
-    Marco.Parent = Gui
-
+    Marco.BorderColor3 = Color3.fromRGB(240, 215, 110); Marco.BorderSizePixel = 2
+    Marco.Active = true; Marco.Draggable = true; Marco.Parent = Gui
     local Boton = Instance.new("TextButton")
-    Boton.Size = UDim2.new(0, 90, 0, 35)
-    Boton.Position = UDim2.new(0.5, -45, 0.5, -17)
+    Boton.Size = UDim2.new(0, 90, 0, 35); Boton.Position = UDim2.new(0.5, -45, 0.5, -17)
     Boton.BackgroundColor3 = Color3.fromRGB(250, 225, 130)
-    Boton.TextColor3 = Color3.fromRGB(90, 70, 20)
-    Boton.Font = Enum.Font.GothamBold
-    Boton.TextSize = 12
-    Boton.Text = "OFF"
-    Boton.AutoLocalize = false
-    Boton.Parent = Marco
-
+    Boton.TextColor3 = Color3.fromRGB(90, 70, 20); Boton.Font = Enum.Font.GothamBold
+    Boton.TextSize = 12; Boton.Text = "OFF"; Boton.AutoLocalize = false; Boton.Parent = Marco
     SitGui = {Gui=Gui, Marco=Marco, Boton=Boton}
 end
-
 local function SetSitProtector(s)
     if s and SitProtectorEnabled then return end
     SitProtectorEnabled = s
     CrearSitGui()
-
     if s then
         SitGui.Boton.Text = "ON"
         SitGui.Boton.BackgroundColor3 = Color3.fromRGB(200, 245, 170)
         GuardarEstadosOriginalesSit(LocalPlayer.Character)
-
         SitConexiones.Bucle = RunService.Heartbeat:Connect(function()
             local Pj = LocalPlayer.Character
             if not Pj then return end
             local Hum = Pj:FindFirstChildWhichIsA("Humanoid")
             local Raiz = Pj:FindFirstChild("HumanoidRootPart")
             if not Hum or not Raiz then return end
-
             Hum.Sit = true
             Hum:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
             Hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
             Hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
             Hum:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, false)
-            Hum.AutoRotate = true
-            Hum.PlatformStand = false
-
+            Hum.AutoRotate = true; Hum.PlatformStand = false
             if math.abs(Raiz.RotVelocity.Y) > 8 then
                 Raiz.RotVelocity = Vector3.new(0, math.sign(Raiz.RotVelocity.Y) * 8, 0)
             end
-
             for _, Pieza in Pj:GetChildren() do
                 if Pieza:IsA("Weld") or Pieza:IsA("WeldConstraint") or Pieza:IsA("Motor6D") then
                     if Pieza.Name ~= "RootJoint" and Pieza.Name ~= "Neck" and Pieza.Name ~= "Waist"
@@ -349,21 +317,16 @@ local function SetSitProtector(s)
             SitGui.Boton.Text = "OFF"
             SitGui.Boton.BackgroundColor3 = Color3.fromRGB(250, 225, 130)
         end
-        if SitConexiones.Bucle then
-            SitConexiones.Bucle:Disconnect()
-            SitConexiones.Bucle = nil
-        end
+        if SitConexiones.Bucle then SitConexiones.Bucle:Disconnect(); SitConexiones.Bucle = nil end
         RestaurarTodoNormalSit()
     end
 end
-
 LocalPlayer.CharacterAdded:Connect(function()
     task.wait(0.2)
-    if SitGui and SitProtectorEnabled then
-        SitGui.Gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-    end
+    if SitGui and SitProtectorEnabled then SitGui.Gui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 end)
 
+-- ESP / FULLBRIGHT / FPS BOOST
 local function SetESP(state)
     ESPEnabled=state
     if state then
@@ -474,7 +437,6 @@ local function RemoveParticles()
     pcall(function() for _,v in ipairs(workspace:GetDescendants()) do if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Sparkles") or v:IsA("Beam") or v:IsA("Explosion") then v:Destroy(); count=count+1 end end end)
     WindUI:Notify({Title="Partículas", Content="Eliminados "..count.." efectos", Duration=2})
 end
--- 🖱️ AUTO-CLICKER UNIVERSAL
 local function SetAutoClicker(s)
     AutoClickerEnabled = s
     if s then
@@ -492,8 +454,6 @@ local function SetAutoClicker(s)
         end)
     end
 end
-
--- 🛡️ NO FALL DAMAGE (universal)
 local function SetNoFallDamage(s)
     NoFallDamageEnabled = s
     if s then
@@ -515,8 +475,6 @@ LocalPlayer.CharacterAdded:Connect(function()
         SetNoFallDamage(true)
     end
 end)
-
--- 💤 ANTI-AFK REAL (universal)
 local function SetAntiAFK(s)
     AntiAFKEnabled = s
     if s then
@@ -524,8 +482,7 @@ local function SetAntiAFK(s)
             AntiAFKConn = LocalPlayer.Idled:Connect(function()
                 pcall(function()
                     local vu = game:GetService("VirtualUser")
-                    vu:CaptureController()
-                    vu:ClickButton2(Vector2.new())
+                    vu:CaptureController(); vu:ClickButton2(Vector2.new())
                 end)
             end)
         end
@@ -533,42 +490,31 @@ local function SetAntiAFK(s)
         if AntiAFKConn then AntiAFKConn:Disconnect(); AntiAFKConn = nil end
     end
 end
-
--- 📌 TP ALL TO ME (universal, si tienes ownership de red)
 local function TPAllToMe()
     if not RootPart then return end
     local count = 0
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            pcall(function()
-                p.Character.HumanoidRootPart.CFrame = RootPart.CFrame * CFrame.new(math.random(-6,6), 0, math.random(-6,6))
-            end)
+            pcall(function() p.Character.HumanoidRootPart.CFrame = RootPart.CFrame * CFrame.new(math.random(-6,6), 0, math.random(-6,6)) end)
             count = count + 1
         end
     end
     WindUI:Notify({Title="TP All", Content="Teleportados "..count.." jugadores a ti", Duration=3})
 end
 
--- ============================================================
--- 👻 INVISIBLE ULTRA (Oculta Posición) — integrado a Main [v33]
--- ============================================================
+-- 👻 INVISIBLE ULTRA
 local function CollectHideParts()
     HideParts = {}
     if not Character then return end
     for _, obj in pairs(Character:GetDescendants()) do
-        if obj:IsA("BasePart") and obj.Transparency == 0 then
-            table.insert(HideParts, obj)
-        end
+        if obj:IsA("BasePart") and obj.Transparency == 0 then table.insert(HideParts, obj) end
     end
 end
-
 local function SetHidePos(s)
     HidePosEnabled = s
     if s then
         CollectHideParts()
-        for _, part in pairs(HideParts) do
-            pcall(function() part.Transparency = 0.5 end)
-        end
+        for _, part in pairs(HideParts) do pcall(function() part.Transparency = 0.5 end) end
         if not HidePosConn then
             HidePosConn = RunService.Heartbeat:Connect(function()
                 if not HidePosEnabled or not RootPart or not Humanoid then return end
@@ -584,14 +530,10 @@ local function SetHidePos(s)
         end
     else
         if HidePosConn then HidePosConn:Disconnect(); HidePosConn = nil end
-        for _, part in pairs(HideParts) do
-            pcall(function() part.Transparency = 0 end)
-        end
+        for _, part in pairs(HideParts) do pcall(function() part.Transparency = 0 end) end
         pcall(function() if Humanoid then Humanoid.CameraOffset = Vector3.new(0,0,0) end end)
     end
 end
-
--- Atajo de tecla G
 UserInputService.InputBegan:Connect(function(input, gp)
     if gp then return end
     if input.KeyCode == Enum.KeyCode.G then
@@ -599,8 +541,6 @@ UserInputService.InputBegan:Connect(function(input, gp)
         pcall(function() WindUI:Notify({Title="Invisible Ultra", Content=HidePosEnabled and "Activado (tecla G)" or "Desactivado", Duration=2}) end)
     end
 end)
-
--- Re-colectar partes al reaparecer (si sigue activado)
 LocalPlayer.CharacterAdded:Connect(function()
     task.wait(0.5)
     if HidePosEnabled then
@@ -609,41 +549,26 @@ LocalPlayer.CharacterAdded:Connect(function()
     end
 end)
 
--- ============================================================
--- 🎈 BOTONES FLOTANTES — ahora todos en tonos amarillo pastel
--- ============================================================
+-- 🎈 BOTONES FLOTANTES
 local BotonesFlotantes = {}
 local FlotCount = 0
 local function CrearFlotante(id, texto, colorOn, getEstado, alternar)
     FlotCount = FlotCount + 1
     local gui = Instance.new("ScreenGui")
-    gui.Name = "Flotante_"..id
-    gui.ResetOnSpawn = false
-    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    gui.Enabled = false
+    gui.Name = "Flotante_"..id; gui.ResetOnSpawn = false
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling; gui.Enabled = false
     local puesto = pcall(function()
         if gethui then gui.Parent = gethui() else gui.Parent = game:GetService("CoreGui") end
     end)
     if not puesto then pcall(function() gui.Parent = LocalPlayer:WaitForChild("PlayerGui") end) end
-
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 54, 0, 54)
-    btn.Position = UDim2.new(0.5, -100 + ((FlotCount-1)*64), 0.88, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-    btn.Text = texto
-    btn.Font = Enum.Font.GothamBold
-    btn.TextColor3 = Color3.fromRGB(90, 70, 15)
-    btn.TextSize = 13
-    btn.BorderSizePixel = 0
-    btn.Active = true
-    btn.Draggable = true
-    btn.AutoLocalize = false
-    btn.Parent = gui
+    btn.Size = UDim2.new(0, 54, 0, 54); btn.Position = UDim2.new(0.5, -100 + ((FlotCount-1)*64), 0.88, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 50); btn.Text = texto
+    btn.Font = Enum.Font.GothamBold; btn.TextColor3 = Color3.fromRGB(90, 70, 15)
+    btn.TextSize = 13; btn.BorderSizePixel = 0; btn.Active = true
+    btn.Draggable = true; btn.AutoLocalize = false; btn.Parent = gui
     Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
-    local stroke = Instance.new("UIStroke")
-    stroke.Thickness = 2.5
-    stroke.Parent = btn
-
+    local stroke = Instance.new("UIStroke"); stroke.Thickness = 2.5; stroke.Parent = btn
     local function Actualizar()
         local on = getEstado()
         btn.BackgroundColor3 = on and colorOn or Color3.fromRGB(255, 248, 215)
@@ -652,34 +577,19 @@ local function CrearFlotante(id, texto, colorOn, getEstado, alternar)
         stroke.Color = on and Color3.fromRGB(200, 165, 40) or colorOn
     end
     Actualizar()
-
-    btn.MouseButton1Click:Connect(function()
-        alternar(not getEstado())
-        task.wait(0.05)
-        Actualizar()
-    end)
-
+    btn.MouseButton1Click:Connect(function() alternar(not getEstado()); task.wait(0.05); Actualizar() end)
     BotonesFlotantes[id] = {Gui=gui, Actualizar=Actualizar}
 end
-
-CrearFlotante("Invisible", "INV", Color3.fromRGB(255, 235, 140),
-    function() return HidePosEnabled end, function(s) SetHidePos(s) end)
-CrearFlotante("TPWalk", "TPW", Color3.fromRGB(255, 242, 165),
-    function() return TPWalkEnabled end, function(s) SetTPWalk(s) end)
-CrearFlotante("Ataque", "ATA", Color3.fromRGB(250, 220, 110),
-    function() return FlashAttackEnabled end, function(s) SetFlashAttack(s) end)
-
+CrearFlotante("Invisible", "INV", Color3.fromRGB(255, 235, 140), function() return HidePosEnabled end, function(s) SetHidePos(s) end)
+CrearFlotante("TPWalk", "TPW", Color3.fromRGB(255, 242, 165), function() return TPWalkEnabled end, function(s) SetTPWalk(s) end)
+CrearFlotante("Ataque", "ATA", Color3.fromRGB(250, 220, 110), function() return FlashAttackEnabled end, function(s) SetFlashAttack(s) end)
 task.spawn(function()
     while task.wait(0.3) do
-        for _, f in pairs(BotonesFlotantes) do
-            if f.Gui.Enabled then f.Actualizar() end
-        end
+        for _, f in pairs(BotonesFlotantes) do if f.Gui.Enabled then f.Actualizar() end end
     end
 end)
 
--- ============================================================
--- 🛡️ NUEVOS ESCUDOS REALES
--- ============================================================
+-- 🛡️ ESCUDOS REALES
 local function SetAntiKick(s)
     AntiKickEnabled = s
     if s and not AntiKickHooked then
@@ -691,9 +601,7 @@ local function SetAntiKick(s)
                 setreadonly(mt, false)
                 mt.__namecall = newcclosure(function(self, ...)
                     local method = getnamecallmethod()
-                    if AntiKickEnabled and method == "Kick" then
-                        return nil
-                    end
+                    if AntiKickEnabled and method == "Kick" then return nil end
                     return OldNameCall(self, ...)
                 end)
                 setreadonly(mt, true)
@@ -717,75 +625,32 @@ local function SetAntiKick(s)
         end
     end
 end
-
 local function SetAntiReset(s)
     AntiResetEnabled = s
-    if s then
-        pcall(function() StarterGui:SetCore("ResetButtonCallback", false) end)
-    else
-        pcall(function() StarterGui:SetCore("ResetButtonCallback", function()
-            if Humanoid then Humanoid.Health = 0 end
-        end) end)
-    end
+    if s then pcall(function() StarterGui:SetCore("ResetButtonCallback", false) end)
+    else pcall(function() StarterGui:SetCore("ResetButtonCallback", function() if Humanoid then Humanoid.Health = 0 end end) end) end
 end
-
 local function SetAntiSit(s)
     AntiSitEnabled = s
-    if not s and Humanoid then
-        pcall(function() Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true) end)
-    end
+    if not s and Humanoid then pcall(function() Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true) end) end
 end
-
-local function SetAntiFling(s)
-    AntiFlingEnabled = s
-end
-
-local function SetAntiFreeze(s)
-    AntiFreezeEnabled = s
-end
-
+local function SetAntiFling(s) AntiFlingEnabled = s end
+local function SetAntiFreeze(s) AntiFreezeEnabled = s end
 local function SetAntiReport(s)
     AntiReportEnabled = s
     pcall(function() StarterGui:SetCore("ReportAbusePageEnabled", not s) end)
 end
-
 local function AntiVCForceReconnect()
-    pcall(function()
-        if VoiceChatService and VoiceChatService.JoinVoice then VoiceChatService:JoinVoice() end
-    end)
-    pcall(function()
-        local internal = game:GetService("VoiceChatInternal")
-        if internal and internal.JoinVoice then internal:JoinVoice() end
-    end)
-    pcall(function()
-        if VoiceChatService and VoiceChatService.SetVoiceChatEnabled then
-            VoiceChatService:SetVoiceChatEnabled(true)
-        end
-    end)
+    pcall(function() if VoiceChatService and VoiceChatService.JoinVoice then VoiceChatService:JoinVoice() end end)
+    pcall(function() local internal = game:GetService("VoiceChatInternal"); if internal and internal.JoinVoice then internal:JoinVoice() end end)
+    pcall(function() if VoiceChatService and VoiceChatService.SetVoiceChatEnabled then VoiceChatService:SetVoiceChatEnabled(true) end end)
 end
-
 local function SetAntiVC(s)
     AntiVCEnabled = s
     if s then
-        if not AntiVCConn then
-            AntiVCConn = RunService.Heartbeat:Connect(function()
-                if not AntiVCEnabled then return end
-                AntiVCForceReconnect()
-            end)
-        end
-        if not AntiVCFastConn then
-            AntiVCFastConn = RunService.RenderStepped:Connect(function()
-                if not AntiVCEnabled then return end
-                AntiVCForceReconnect()
-            end)
-        end
-        task.spawn(function()
-            for i = 1, 8 do
-                if not AntiVCEnabled then break end
-                task.wait(0.1)
-                AntiVCForceReconnect()
-            end
-        end)
+        if not AntiVCConn then AntiVCConn = RunService.Heartbeat:Connect(function() if not AntiVCEnabled then return end; AntiVCForceReconnect() end) end
+        if not AntiVCFastConn then AntiVCFastConn = RunService.RenderStepped:Connect(function() if not AntiVCEnabled then return end; AntiVCForceReconnect() end) end
+        task.spawn(function() for i = 1, 8 do if not AntiVCEnabled then break end; task.wait(0.1); AntiVCForceReconnect() end end)
         WindUI:Notify({Title="Anti-VC", Content="Anti-VC Ultra activado", Duration=3})
     else
         if AntiVCConn then AntiVCConn:Disconnect(); AntiVCConn = nil end
@@ -793,62 +658,39 @@ local function SetAntiVC(s)
     end
 end
 
--- ============================================================
--- 🎯 FUNCIONES DEL MODULO TARGET (integradas)
--- ============================================================
+-- 🎯 MODULO TARGET
 local function TargetSafe(fn) local st, r = pcall(fn); return st and r or nil end
-
 local function TargetGetPing()
-    return TargetSafe(function()
-        return (game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()) / 1000
-    end) or 0.1
+    return TargetSafe(function() return (game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()) / 1000 end) or 0.1
 end
-
 local function TargetGetRoot(p)
-    return TargetSafe(function()
-        local c = p and p.Character
-        if c and c:FindFirstChild("HumanoidRootPart") then return c.HumanoidRootPart end
-    end)
+    return TargetSafe(function() local c = p and p.Character; if c and c:FindFirstChild("HumanoidRootPart") then return c.HumanoidRootPart end end)
 end
-
 local function TargetCurrent()
     if not TargetedPlayerName then return nil end
     return Players:FindFirstChild(TargetedPlayerName)
 end
-
 local function TargetTeleportTo(target)
     TargetSafe(function()
         local r = TargetGetRoot(LocalPlayer); local t = TargetGetRoot(target)
-        if r and t then
-            r.Velocity = Vector3.new(0,0,0)
-            r.CFrame = CFrame.new(t.Position) + Vector3.new(0,2,0)
-        end
+        if r and t then r.Velocity = Vector3.new(0,0,0); r.CFrame = CFrame.new(t.Position) + Vector3.new(0,2,0) end
     end)
 end
-
 local function TargetPredictionTP(target)
     TargetSafe(function()
         local r = TargetGetRoot(LocalPlayer); local t = TargetGetRoot(target)
         if not r or not t then return end
         local pos, vel = t.Position, t.Velocity
         local ping = TargetGetPing()
-        r.CFrame = CFrame.new(
-            pos.X + vel.X * ping * 3.5,
-            pos.Y + vel.Y * ping * 2,
-            pos.Z + vel.Z * ping * 3.5
-        )
+        r.CFrame = CFrame.new(pos.X + vel.X * ping * 3.5, pos.Y + vel.Y * ping * 2, pos.Z + vel.Z * ping * 3.5)
     end)
 end
-
 local function TargetPush(target)
     TargetSafe(function()
         local r = TargetGetRoot(LocalPlayer); local t = TargetGetRoot(target)
-        if r and t then
-            t.Velocity = (t.Position - r.Position).Unit * 100 + Vector3.new(0,50,0)
-        end
+        if r and t then t.Velocity = (t.Position - r.Position).Unit * 100 + Vector3.new(0,50,0) end
     end)
 end
-
 local function TargetPlayAnim(id, time, speed)
     TargetSafe(function()
         local c = LocalPlayer.Character; if not c then return end
@@ -857,7 +699,6 @@ local function TargetPlayAnim(id, time, speed)
         local tr = h:LoadAnimation(a); tr:Play(); tr.TimePosition = time; tr:AdjustSpeed(speed)
     end)
 end
-
 local function TargetStopAnim()
     TargetSafe(function()
         local c = LocalPlayer.Character; if not c then return end
@@ -865,7 +706,6 @@ local function TargetStopAnim()
         for _, tr in ipairs(h:GetPlayingAnimationTracks()) do tr:Stop() end
     end)
 end
-
 local function TargetBreakVel()
     return TargetSafe(function()
         local b = Instance.new("BodyAngularVelocity")
@@ -873,48 +713,27 @@ local function TargetBreakVel()
         return b
     end)
 end
-
 local function TargetCleanBreakVel()
-    TargetSafe(function()
-        local r = TargetGetRoot(LocalPlayer)
-        if r and r:FindFirstChild("BreakVel") then r.BreakVel:Destroy() end
-    end)
+    TargetSafe(function() local r = TargetGetRoot(LocalPlayer); if r and r:FindFirstChild("BreakVel") then r.BreakVel:Destroy() end end)
 end
-
 local function TargetCleanup()
-    TargetCleanBreakVel()
-    TargetStopAnim()
-    TargetSafe(function()
-        if Humanoid then workspace.CurrentCamera.CameraSubject = Humanoid end
-    end)
+    TargetCleanBreakVel(); TargetStopAnim()
+    TargetSafe(function() if Humanoid then workspace.CurrentCamera.CameraSubject = Humanoid end end)
 end
-
 local function TargetAnyActive()
     for _, v in pairs(TargetToggles) do if v then return true end end
     return false
 end
-
 local function TargetEnsureLoop()
     if TargetLoopConn then return end
     TargetLoopConn = RunService.Heartbeat:Connect(function()
         if not TargetAnyActive() then return end
-        local t = TargetCurrent()
-        if not t then return end
-        local r = TargetGetRoot(LocalPlayer)
-        if not r then return end
-        local tr = TargetGetRoot(t)
-        local char = t.Character
-
-        if TargetToggles.Fling then
-            TargetPredictionTP(t)
-        end
-        if TargetToggles.View then
-            local h = char and char:FindFirstChildOfClass("Humanoid")
-            if h then workspace.CurrentCamera.CameraSubject = h end
-        end
-        if TargetToggles.Focus then
-            TargetTeleportTo(t); TargetPush(t)
-        end
+        local t = TargetCurrent(); if not t then return end
+        local r = TargetGetRoot(LocalPlayer); if not r then return end
+        local tr = TargetGetRoot(t); local char = t.Character
+        if TargetToggles.Fling then TargetPredictionTP(t) end
+        if TargetToggles.View then local h = char and char:FindFirstChildOfClass("Humanoid"); if h then workspace.CurrentCamera.CameraSubject = h end end
+        if TargetToggles.Focus then TargetTeleportTo(t); TargetPush(t) end
         if TargetToggles.Bang then
             TargetPlayAnim(5918726674, 0, 1)
             if not r:FindFirstChild("BreakVel") then local bv = TargetBreakVel(); if bv then bv.Parent = r end end
@@ -957,27 +776,19 @@ local function TargetEnsureLoop()
         end
     end)
 end
-
 local function TargetToggle(key, s)
     TargetToggles[key] = s
     if s then
-        if not TargetCurrent() then
-            WindUI:Notify({Title="Target", Content="Selecciona un objetivo primero", Duration=3})
-        end
+        if not TargetCurrent() then WindUI:Notify({Title="Target", Content="Selecciona un objetivo primero", Duration=3}) end
         TargetEnsureLoop()
     else
         if not TargetAnyActive() then TargetCleanup() end
     end
 end
-
 local function TargetUpdateInfo(p)
     if TargetInfoParagraph and TargetInfoParagraph.SetDesc then
-        if p then
-            TargetInfoParagraph:SetDesc(string.format("UserID: %d\nDisplay: %s\nAccountAge: %d días",
-                p.UserId, p.DisplayName, p.AccountAge))
-        else
-            TargetInfoParagraph:SetDesc("UserID: —\nDisplay: —\nAccountAge: —")
-        end
+        if p then TargetInfoParagraph:SetDesc(string.format("UserID: %d\nDisplay: %s\nAccountAge: %d días", p.UserId, p.DisplayName, p.AccountAge))
+        else TargetInfoParagraph:SetDesc("UserID: —\nDisplay: —\nAccountAge: —") end
     end
     if p and TargetAvatarImg then
         pcall(function()
@@ -986,13 +797,11 @@ local function TargetUpdateInfo(p)
         end)
     end
 end
-
 local function TargetSelect(name)
     if not name or name == "" or name == "No hay jugadores" or name == "Nadie (detener)" then
         TargetedPlayerName = nil
         for k in pairs(TargetToggles) do TargetToggles[k] = false end
-        TargetCleanup()
-        TargetUpdateInfo(nil)
+        TargetCleanup(); TargetUpdateInfo(nil)
         WindUI:Notify({Title="Target", Content="Objetivo limpiado", Duration=2})
         return
     end
@@ -1000,9 +809,7 @@ local function TargetSelect(name)
     if not p then
         local low = name:lower()
         for _, v in ipairs(Players:GetPlayers()) do
-            if v ~= LocalPlayer and (v.Name:lower():match(low) or v.DisplayName:lower():match(low)) then
-                p = v; break
-            end
+            if v ~= LocalPlayer and (v.Name:lower():match(low) or v.DisplayName:lower():match(low)) then p = v; break end
         end
     end
     if p then
@@ -1010,127 +817,30 @@ local function TargetSelect(name)
             WindUI:Notify({Title="Target", Content=p.Name.." está en lista blanca (no se puede objetivo)", Duration=3})
             return
         end
-        TargetedPlayerName = p.Name
-        TargetUpdateInfo(p)
+        TargetedPlayerName = p.Name; TargetUpdateInfo(p)
         WindUI:Notify({Title="Target", Content="Objetivo: "..p.Name, Duration=2})
     else
         WindUI:Notify({Title="Target", Content="Jugador no encontrado", Duration=2})
     end
 end
-
 Players.PlayerRemoving:Connect(function(p)
     if p.Name == TargetedPlayerName then
         TargetedPlayerName = nil
         for k in pairs(TargetToggles) do TargetToggles[k] = false end
-        TargetCleanup()
-        TargetUpdateInfo(nil)
+        TargetCleanup(); TargetUpdateInfo(nil)
         WindUI:Notify({Title="Target", Content="El objetivo salió del servidor", Duration=3})
     end
 end)
-
-_G.TargetModule = {
-    SetTarget = function(n) TargetSelect(n) end,
-    GetTarget = function() return TargetCurrent() end,
-    Whitelist = TargetWhitelist,
-}
+_G.TargetModule = { SetTarget = function(n) TargetSelect(n) end, GetTarget = function() return TargetCurrent() end, Whitelist = TargetWhitelist }
 getgenv().TargetModule = _G.TargetModule
 
--- ============================================================
--- 💾 AUTO-GUARDADO SILENCIOSO (v34: ThemeVersion=2 fuerza amarillo pastel)
--- ============================================================
+-- 💾 AUTO-GUARDADO
 local Saved = {}
 local ConfigFolder = "DENJI_ALEX"
 local ConfigFile = ConfigFolder .. "/Takemichi_Config.json"
 local HttpService = game:GetService("HttpService")
+local function Get(key, def) if Saved[key] ~= nil then return Saved[key] end; return def end
 
-local function Get(key, def)
-    if Saved[key] ~= nil then return Saved[key] end
-    return def
-end
-
-local function BuildConfig()
-    return {
-        ThemeVersion = 2,
-        FlashAttackEnabled = FlashAttackEnabled,
-        FlashMultiplier = FlashMultiplier,
-        TPWalkEnabled = TPWalkEnabled,
-        TPWalkSpeed = TPWalkSpeed,
-        NoFrictionEnabled = NoFrictionEnabled,
-        InvisibleEnabled = InvisibleEnabled,
-        HidePosEnabled = HidePosEnabled,
-        FlyEnabled = FlyEnabled,
-        FlySpeed = FlySpeed,
-        NoclipEnabled = NoclipEnabled,
-        InfJumpEnabled = InfJumpEnabled,
-        WalkSpeed = Humanoid and Humanoid.WalkSpeed or 16,
-        JumpPower = Humanoid and Humanoid.JumpPower or 50,
-        GravityScale = Humanoid and Humanoid.GravityScale or 1,
-        AutoWalkEnabled = AutoWalkEnabled,
-        FullbrightEnabled = FullbrightEnabled,
-        ESPEnabled = ESPEnabled,
-        FpsBoostEnabled = FpsBoostEnabled,
-        FOV = (function() local ok,v=pcall(function() return workspace.CurrentCamera.FieldOfView end); return ok and v or 70 end)(),
-        ClockTime = Lighting.ClockTime,
-        AnimationSpeed = Humanoid and Humanoid.AnimationSpeed or 1,
-        BodyScale = Humanoid and Humanoid.BodyHeightScale or 1,
-        AutoRejoinEnabled = AutoRejoinEnabled,
-        AntiVoidEnabled = AntiVoidEnabled,
-        AntiRagdollEnabled = AntiRagdollEnabled,
-        GodModeEnabled = GodModeEnabled,
-        InstantRespawnEnabled = InstantRespawnEnabled,
-        FollowPlayerEnabled = FollowPlayerEnabled,
-        ClickTPEnabled = ClickTPEnabled,
-        AutoJumpEnabled = AutoJumpEnabled,
-        WalkOnWaterEnabled = WalkOnWaterEnabled,
-        SpinBotEnabled = SpinBotEnabled,
-        FreezePositionEnabled = FreezePositionEnabled,
-        FallSpeedCap = FallSpeedCap,
-        AntiAFKEnabled = AntiAFKEnabled,
-        NoPushEnabled = NoPushEnabled,
-        NoKnockbackEnabled = NoKnockbackEnabled,
-        SitProtectorEnabled = SitProtectorEnabled,
-        AutoClickerEnabled = AutoClickerEnabled,
-        AutoClickerCPS = AutoClickerCPS,
-        NoFallDamageEnabled = NoFallDamageEnabled,
-        AntiKickEnabled = AntiKickEnabled,
-        AntiResetEnabled = AntiResetEnabled,
-        AntiSitEnabled = AntiSitEnabled,
-        AntiFlingEnabled = AntiFlingEnabled,
-        AntiFreezeEnabled = AntiFreezeEnabled,
-        AntiReportEnabled = AntiReportEnabled,
-        AntiVCEnabled = AntiVCEnabled,
-        ServidoresVisitados = ServidoresVisitados,
-        AccentR = math.floor(ColorAccent.R*255),
-        AccentG = math.floor(ColorAccent.G*255),
-        AccentB = math.floor(ColorAccent.B*255),
-    }
-end
-
-local function DoSave()
-    pcall(function()
-        if not isfolder(ConfigFolder) then makefolder(ConfigFolder) end
-        writefile(ConfigFile, HttpService:JSONEncode(BuildConfig()))
-    end)
-end
-
-local SaveScheduled = false
-local function SaveConfig()
-    if SaveScheduled then return end
-    SaveScheduled = true
-    task.delay(0.4, function()
-        SaveScheduled = false
-        DoSave()
-    end)
-end
-
-local function AS(fn)
-    return function(...)
-        if fn then fn(...) end
-        pcall(SaveConfig)
-    end
-end
-
--- 🎨 ACENTO: AMARILLO PASTEL
 local ColorAccent = Color3.fromRGB(255, 235, 140)
 local RefBordeCirculo, RefBordePerfil, RefTPBtn = nil, nil, nil
 local function AplicarColor(c)
@@ -1143,6 +853,59 @@ local function AplicarColor(c)
     pcall(SaveConfig)
 end
 
+local function BuildConfig()
+    return {
+        ThemeVersion = 2,
+        FlashAttackEnabled = FlashAttackEnabled, FlashMultiplier = FlashMultiplier,
+        TPWalkEnabled = TPWalkEnabled, TPWalkSpeed = TPWalkSpeed,
+        NoFrictionEnabled = NoFrictionEnabled, InvisibleEnabled = InvisibleEnabled,
+        HidePosEnabled = HidePosEnabled, FlyEnabled = FlyEnabled, FlySpeed = FlySpeed,
+        NoclipEnabled = NoclipEnabled, InfJumpEnabled = InfJumpEnabled,
+        WalkSpeed = Humanoid and Humanoid.WalkSpeed or 16,
+        JumpPower = Humanoid and Humanoid.JumpPower or 50,
+        GravityScale = Humanoid and Humanoid.GravityScale or 1,
+        AutoWalkEnabled = AutoWalkEnabled, FullbrightEnabled = FullbrightEnabled,
+        ESPEnabled = ESPEnabled, FpsBoostEnabled = FpsBoostEnabled,
+        FOV = (function() local ok,v=pcall(function() return workspace.CurrentCamera.FieldOfView end); return ok and v or 70 end)(),
+        ClockTime = Lighting.ClockTime,
+        AnimationSpeed = Humanoid and Humanoid.AnimationSpeed or 1,
+        BodyScale = Humanoid and Humanoid.BodyHeightScale or 1,
+        AutoRejoinEnabled = AutoRejoinEnabled, AntiVoidEnabled = AntiVoidEnabled,
+        AntiRagdollEnabled = AntiRagdollEnabled, GodModeEnabled = GodModeEnabled,
+        InstantRespawnEnabled = InstantRespawnEnabled, FollowPlayerEnabled = FollowPlayerEnabled,
+        ClickTPEnabled = ClickTPEnabled, AutoJumpEnabled = AutoJumpEnabled,
+        WalkOnWaterEnabled = WalkOnWaterEnabled, SpinBotEnabled = SpinBotEnabled,
+        FreezePositionEnabled = FreezePositionEnabled, FallSpeedCap = FallSpeedCap,
+        AntiAFKEnabled = AntiAFKEnabled, NoPushEnabled = NoPushEnabled,
+        NoKnockbackEnabled = NoKnockbackEnabled, SitProtectorEnabled = SitProtectorEnabled,
+        AutoClickerEnabled = AutoClickerEnabled, AutoClickerCPS = AutoClickerCPS,
+        NoFallDamageEnabled = NoFallDamageEnabled, AntiKickEnabled = AntiKickEnabled,
+        AntiResetEnabled = AntiResetEnabled, AntiSitEnabled = AntiSitEnabled,
+        AntiFlingEnabled = AntiFlingEnabled, AntiFreezeEnabled = AntiFreezeEnabled,
+        AntiReportEnabled = AntiReportEnabled, AntiVCEnabled = AntiVCEnabled,
+        ServidoresVisitados = ServidoresVisitados,
+        AccentR = math.floor(ColorAccent.R*255), AccentG = math.floor(ColorAccent.G*255), AccentB = math.floor(ColorAccent.B*255),
+    }
+end
+local function DoSave()
+    pcall(function()
+        if not isfolder(ConfigFolder) then makefolder(ConfigFolder) end
+        writefile(ConfigFile, HttpService:JSONEncode(BuildConfig()))
+    end)
+end
+local SaveScheduled = false
+local function SaveConfig()
+    if SaveScheduled then return end
+    SaveScheduled = true
+    task.delay(0.4, function() SaveScheduled = false; DoSave() end)
+end
+local function AS(fn)
+    return function(...)
+        if fn then fn(...) end
+        pcall(SaveConfig)
+    end
+end
+
 local function LoadConfig()
     pcall(function()
         if isfolder(ConfigFolder) and isfile(ConfigFile) then
@@ -1150,13 +913,8 @@ local function LoadConfig()
             if data then Saved = data end
         end
     end)
-    -- v34: si la config es vieja (sin ThemeVersion=2), ignorar el acento naranja guardado
-    if Saved.ThemeVersion ~= 2 then
-        Saved.AccentR, Saved.AccentG, Saved.AccentB = nil, nil, nil
-    end
-    if Saved.ServidoresVisitados and type(Saved.ServidoresVisitados) == "table" then
-        ServidoresVisitados = Saved.ServidoresVisitados
-    end
+    if Saved.ThemeVersion ~= 2 then Saved.AccentR, Saved.AccentG, Saved.AccentB = nil, nil, nil end
+    if Saved.ServidoresVisitados and type(Saved.ServidoresVisitados) == "table" then ServidoresVisitados = Saved.ServidoresVisitados end
     if Saved.FlashMultiplier then FlashMultiplier = Saved.FlashMultiplier end
     if Saved.TPWalkSpeed then TPWalkSpeed = Saved.TPWalkSpeed end; getgenv().TPWalkSpeed = TPWalkSpeed
     if Saved.FlySpeed then FlySpeed = Saved.FlySpeed end
@@ -1172,22 +930,10 @@ local function AplicarConfiguracion()
     Try(function() if Humanoid and Saved.JumpPower then Humanoid.JumpPower = Saved.JumpPower end end)
     Try(function() if Humanoid and Saved.GravityScale then Humanoid.GravityScale = Saved.GravityScale end end)
     Try(function() if Humanoid and Saved.AnimationSpeed then pcall(function() Humanoid.AnimationSpeed = Saved.AnimationSpeed end) end end)
-    Try(function()
-        if Humanoid and Saved.BodyScale then
-            pcall(function()
-                Humanoid.BodyHeightScale=Saved.BodyScale; Humanoid.BodyWidthScale=Saved.BodyScale; Humanoid.BodyDepthScale=Saved.BodyScale
-                if Humanoid.HeadScale then Humanoid.HeadScale=Saved.BodyScale end
-            end)
-        end
-    end)
+    Try(function() if Humanoid and Saved.BodyScale then pcall(function() Humanoid.BodyHeightScale=Saved.BodyScale; Humanoid.BodyWidthScale=Saved.BodyScale; Humanoid.BodyDepthScale=Saved.BodyScale; if Humanoid.HeadScale then Humanoid.HeadScale=Saved.BodyScale end end) end end)
     Try(function() if Saved.FOV then pcall(function() workspace.CurrentCamera.FieldOfView = Saved.FOV end) end end)
     Try(function() if Saved.ClockTime then Lighting.ClockTime = Saved.ClockTime end end)
-    Try(function()
-        if Saved.InvisibleEnabled and Character then
-            for _,v in pairs(Character:GetDescendants()) do if v:IsA("BasePart") then v.LocalTransparencyModifier=1 end end
-            InvisibleEnabled = true
-        end
-    end)
+    Try(function() if Saved.InvisibleEnabled and Character then for _,v in pairs(Character:GetDescendants()) do if v:IsA("BasePart") then v.LocalTransparencyModifier=1 end end; InvisibleEnabled = true end end)
     Try(function() if Saved.HidePosEnabled then SetHidePos(true) end end)
     Try(function() if Saved.FlashAttackEnabled then SetFlashAttack(true) end end)
     Try(function() if Saved.TPWalkEnabled then SetTPWalk(true) end end)
@@ -1227,18 +973,18 @@ end
 
 LoadConfig()
 
+-- VENTANA PRINCIPAL
 local Window = WindUI:CreateWindow({
     Title="TKSH🍰", Icon="sword", Author="CHOCOFRZ🍓", Folder="DENJI•ALEX",
     Size=UDim2.fromOffset(600,540), MinSize=Vector2.new(520,420), MaxSize=Vector2.new(850,680),
     Transparent=true, Theme="Dark", Resizable=true, SideBarWidth=160,
     Background = "rbxassetid://81943489858207",
-    BackgroundImageTransparency = 0.65, -- [v34] foto de fondo más clara / tenue
-    BackgroundColor3 = Color3.fromRGB(255, 253, 240), -- tinte claro debajo de la foto
-
-    HideSearchBar = true, Accent=Color3.fromRGB(255, 235, 140), -- [v34] acento amarillo pastel (botones, sliders, toggles)
+    BackgroundImageTransparency = 0.65,
+    BackgroundColor3 = Color3.fromRGB(255, 253, 240),
+    HideSearchBar = true, Accent=Color3.fromRGB(255, 235, 140),
     OpenButton={Title="CHOCOFRZ 🍓", Icon="sword", Enabled=true, Draggable=true, OnlyMobile=false, CornerRadius=UDim.new(1,0), StrokeThickness=2, StrokeColor=Color3.fromRGB(255, 235, 140), Scale=1},
 })
-pcall(function() AplicarColor(ColorAccent) end) -- fuerza el acento en WindUI al iniciar
+pcall(function() AplicarColor(ColorAccent) end)
 
 -- 1. PLAYER
 local PlayerTab = Window:Tab({Title="Player", Icon="user"})
@@ -1259,14 +1005,12 @@ end)
 -- 2. MAIN
 local MainTab = Window:Tab({Title="Main", Icon="home"})
 MainTab:Section({Title="Funciones Principales", TextSize=20}); MainTab:Space({Size=6})
-
 MainTab:Section({Title="⚔️ Ataque Rápido", TextSize=18}); MainTab:Space({Size=6})
 local FlashRow = MainTab:Group({})
 FlashRow:Toggle({Title="Activar Ataque Rápido", Def=Get("FlashAttackEnabled", false), Callback=AS(SetFlashAttack)})
 FlashRow:Space({Size=8})
 FlashRow:Slider({Title="Multiplicador", Step=1, Value={Min=1,Max=30,Default=Get("FlashMultiplier", 5)}, Callback=AS(function(v) FlashMultiplier = v end)})
 MainTab:Space({Size=12})
-
 local MainRow1 = MainTab:Group({})
 MainRow1:Button({Title="Teleport a Ti", Icon="map-pin", Justify="Center", Callback=function() local m=LocalPlayer:GetMouse(); if RootPart then RootPart.CFrame=CFrame.new(m.Hit.Position+Vector3.new(0,3,0)) end end})
 MainRow1:Space({Size=8})
@@ -1318,28 +1062,20 @@ local MainA3 = MainTab:Group({})
 MainA3:Button({Title="Volver al Spawn", Icon="home", Justify="Center", Callback=function() if RootPart then RootPart.CFrame=SpawnCFrame; RootPart.Velocity=Vector3.new(0,0,0); WindUI:Notify({Title="Spawn", Content="Volviste al spawn", Duration=2}) end end})
 MainA3:Space({Size=8})
 MainA3:Button({Title="Reiniciar Personaje", Icon="refresh-cw", Justify="Center", Callback=function() if Character and Humanoid then Humanoid.Health=0 end end})
-
 MainTab:Space({Size=12})
 MainTab:Section({Title="📦 Scripts Externos", TextSize=18}); MainTab:Space({Size=6})
 local ExtScripts = MainTab:Section({Title="", Box=true, BoxBorder=true, Opened=true})
 ExtScripts:Button({Title="Hitbox Boys", Desc="Ejecutar script", Icon="play", Justify="Left", Callback=function()
-    pcall(function()
-        loadstring(game:HttpGet("https://pastebin.com/raw/4vL0qwVd"))()
-        WindUI:Notify({Title="Hitbox Boys", Content="Script ejecutado", Duration=3})
-    end)
+    pcall(function() loadstring(game:HttpGet("https://pastebin.com/raw/4vL0qwVd"))(); WindUI:Notify({Title="Hitbox Boys", Content="Script ejecutado", Duration=3}) end)
 end})
 ExtScripts:Space({Size=10})
 ExtScripts:Button({Title="Hitbox Girls", Desc="Ejecutar script", Icon="play", Justify="Left", Callback=function()
-    pcall(function()
-        loadstring(game:HttpGet("https://pastebin.com/raw/x9ivUUsh"))()
-        WindUI:Notify({Title="Hitbox Girls", Content="Script ejecutado", Duration=3})
-    end)
+    pcall(function() loadstring(game:HttpGet("https://pastebin.com/raw/x9ivUUsh"))(); WindUI:Notify({Title="Hitbox Girls", Content="Script ejecutado", Duration=3}) end)
 end})
 
 -- 3. GAME
 local GameTab = Window:Tab({Title="Game", Icon="gamepad-2"})
 GameTab:Section({Title="Funciones Universales", TextSize=20}); GameTab:Space({Size=6})
-
 GameTab:Section({Title="🚀 Movimiento", TextSize=18}); GameTab:Space({Size=6})
 local GMov = GameTab:Section({Title="", Box=true, BoxBorder=true, Opened=true})
 GMov:Toggle({Title="Fly (Volar)", Def=Get("FlyEnabled", false), Callback=AS(function(s) if s then StartFly() else StopFly() end end)}); GMov:Space({Size=6})
@@ -1354,7 +1090,6 @@ GMov:Slider({Title="WalkSpeed", Step=1, Value={Min=16,Max=250,Default=Get("WalkS
 GMov:Slider({Title="JumpPower", Step=1, Value={Min=50,Max=350,Default=Get("JumpPower",50)}, Callback=AS(function(v) if Humanoid then Humanoid.JumpPower=v end end)}); GMov:Space({Size=6})
 GMov:Slider({Title="Gravedad", Step=0.1, Value={Min=0,Max=2,Default=Get("GravityScale",1)}, Callback=AS(function(v) if Humanoid then Humanoid.GravityScale=v end end)})
 GameTab:Space({Size=10})
-
 GameTab:Section({Title="👁️ Visual", TextSize=18}); GameTab:Space({Size=6})
 local GVis = GameTab:Section({Title="", Box=true, BoxBorder=true, Opened=true})
 GVis:Toggle({Title="ESP Jugadores", Def=Get("ESPEnabled", false), Callback=AS(SetESP)}); GVis:Space({Size=6})
@@ -1366,7 +1101,6 @@ GVisB:Button({Title="Desbloquear Zoom", Icon="zoom-in", Justify="Center", Callba
 GVisB:Space({Size=8})
 GVisB:Button({Title="Eliminar Partículas", Icon="trash-2", Justify="Center", Callback=RemoveParticles})
 GameTab:Space({Size=10})
-
 GameTab:Section({Title="🛡️ Protección", TextSize=18}); GameTab:Space({Size=6})
 local GProt = GameTab:Section({Title="", Box=true, BoxBorder=true, Opened=true})
 GProt:Toggle({Title="God Mode (Local)", Def=Get("GodModeEnabled", false), Callback=AS(function(s) GodModeEnabled=s end)}); GProt:Space({Size=6})
@@ -1377,7 +1111,6 @@ GProt:Toggle({Title="No Fall Damage", Def=Get("NoFallDamageEnabled", false), Cal
 GProt:Toggle({Title="Auto-Respawn Instantáneo", Def=Get("InstantRespawnEnabled", false), Callback=AS(function(s) InstantRespawnEnabled=s end)}); GProt:Space({Size=6})
 GProt:Toggle({Title="Auto-Rejoin al Morir", Def=Get("AutoRejoinEnabled", false), Callback=AS(function(s) AutoRejoinEnabled=s end)})
 GameTab:Space({Size=10})
-
 GameTab:Section({Title="🔧 Utilidades", TextSize=18}); GameTab:Space({Size=6})
 local GUtil = GameTab:Section({Title="", Box=true, BoxBorder=true, Opened=true})
 GUtil:Toggle({Title="Auto-Clicker", Def=Get("AutoClickerEnabled", false), Callback=AS(SetAutoClicker)}); GUtil:Space({Size=6})
@@ -1392,21 +1125,14 @@ GU2:Button({Title="Copiar JobID", Icon="clipboard", Justify="Center", Callback=f
 GUtil:Space({Size=6})
 GUtil:Button({Title="Copiar Link del Juego", Icon="link", Justify="Center", Callback=function() setclipboard("https://www.roblox.com/games/"..tostring(game.PlaceId)); WindUI:Notify({Title="Copiado", Content="Link copiado", Duration=2}) end})
 GameTab:Space({Size=10})
-
 GameTab:Section({Title="📦 Scripts Universales", TextSize=18}); GameTab:Space({Size=6})
 local GScr = GameTab:Section({Title="", Box=true, BoxBorder=true, Opened=true})
 GScr:Button({Title="Infinite Yield (Admin Universal)", Desc="Ejecutar", Icon="play", Justify="Left", Callback=function()
-    pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
-        WindUI:Notify({Title="Infinite Yield", Content="Script ejecutado", Duration=3})
-    end)
+    pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))(); WindUI:Notify({Title="Infinite Yield", Content="Script ejecutado", Duration=3}) end)
 end})
 GScr:Space({Size=10})
 GScr:Button({Title="Dex Explorer", Desc="Ejecutar", Icon="play", Justify="Left", Callback=function()
-    pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
-        WindUI:Notify({Title="Dex Explorer", Content="Script ejecutado", Duration=3})
-    end)
+    pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))(); WindUI:Notify({Title="Dex Explorer", Content="Script ejecutado", Duration=3}) end)
 end})
 GameTab:Space({Size=12})
 
@@ -1418,27 +1144,20 @@ TargetAvatarImg = TargetSel:Image({Image="rbxassetid://10818605405", ImageSize=8
 TargetSel:Space({Size=6})
 TargetDropdown = TargetSel:Dropdown({Title="Jugador Objetivo", Values=GetPlayerNames(false), Value=1, Callback=function(s) TargetSelect(s) end})
 TargetSel:Space({Size=6})
-pcall(function()
-    TargetSel:TextBox({Title="Nombre (o parte del display)", PlaceholderText="@nombre...", Callback=function(t) TargetNameInput = t end})
-end)
+pcall(function() TargetSel:TextBox({Title="Nombre (o parte del display)", PlaceholderText="@nombre...", Callback=function(t) TargetNameInput = t end}) end)
 TargetSel:Space({Size=6})
 local TargetBtnRow = TargetSel:Group({})
 TargetBtnRow:Button({Title="Seleccionar por Nombre", Icon="user-check", Justify="Center", Callback=function() TargetSelect(TargetNameInput or "") end})
 TargetBtnRow:Space({Size=8})
 TargetBtnRow:Button({Title="Herramienta de Clic", Icon="mouse-pointer", Justify="Center", Callback=function()
     pcall(function()
-        local tool = Instance.new("Tool")
-        tool.Name = "TargetSelector"; tool.RequiresHandle = false
-        tool.TextureId = "rbxassetid://2716591855"
+        local tool = Instance.new("Tool"); tool.Name = "TargetSelector"; tool.RequiresHandle = false; tool.TextureId = "rbxassetid://2716591855"
         tool.Activated:Connect(function()
             local m = LocalPlayer:GetMouse(); local hit = m and m.Target
             if not hit then return end
             local model = hit.Parent
             if model and model:IsA("Accessory") then model = model.Parent end
-            if model and model:IsA("Model") then
-                local p = Players:GetPlayerFromCharacter(model)
-                if p then TargetSelect(p.Name) end
-            end
+            if model and model:IsA("Model") then local p = Players:GetPlayerFromCharacter(model); if p then TargetSelect(p.Name) end end
         end)
         tool.Parent = LocalPlayer.Backpack
         WindUI:Notify({Title="Target", Content="Herramienta equipada: haz clic en un jugador", Duration=3})
@@ -1452,33 +1171,27 @@ end})
 TargetSel:Space({Size=6})
 TargetInfoParagraph = TargetSel:Paragraph({Title="Información del Objetivo", Desc="UserID: —\nDisplay: —\nAccountAge: —", Image="info", ImageSize=14})
 TargetTab:Space({Size=10})
-
 TargetTab:Section({Title="🔄 Toggles de Objetivo (2 por línea)", TextSize=18}); TargetTab:Space({Size=6})
 local TargetTog = TargetTab:Section({Title="", Box=true, BoxBorder=true, Opened=true})
 local TT1 = TargetTog:Group({})
-TT1:Toggle({Title="Lanzar (Fling)", Def=false, Callback=AS(function(s) TargetToggle("Fling", s) end)})
-TT1:Space({Size=8})
+TT1:Toggle({Title="Lanzar (Fling)", Def=false, Callback=AS(function(s) TargetToggle("Fling", s) end)}); TT1:Space({Size=8})
 TT1:Toggle({Title="Ver (Cámara)", Def=false, Callback=AS(function(s) TargetToggle("View", s) end)})
 TargetTog:Space({Size=6})
 local TT2 = TargetTog:Group({})
-TT2:Toggle({Title="Enfocar (Focus)", Def=false, Callback=AS(function(s) TargetToggle("Focus", s) end)})
-TT2:Space({Size=8})
+TT2:Toggle({Title="Enfocar (Focus)", Def=false, Callback=AS(function(s) TargetToggle("Focus", s) end)}); TT2:Space({Size=8})
 TT2:Toggle({Title="Bang / Pegar", Def=false, Callback=AS(function(s) TargetToggle("Bang", s) end)})
 TargetTog:Space({Size=6})
 local TT3 = TargetTog:Group({})
-TT3:Toggle({Title="Sentar en Cabeza", Def=false, Callback=AS(function(s) TargetToggle("HeadSit", s) end)})
-TT3:Space({Size=8})
+TT3:Toggle({Title="Sentar en Cabeza", Def=false, Callback=AS(function(s) TargetToggle("HeadSit", s) end)}); TT3:Space({Size=8})
 TT3:Toggle({Title="Pararse Junto (Stand)", Def=false, Callback=AS(function(s) TargetToggle("Stand", s) end)})
 TargetTog:Space({Size=6})
 local TT4 = TargetTog:Group({})
-TT4:Toggle({Title="Mochila (Backpack)", Def=false, Callback=AS(function(s) TargetToggle("Backpack", s) end)})
-TT4:Space({Size=8})
+TT4:Toggle({Title="Mochila (Backpack)", Def=false, Callback=AS(function(s) TargetToggle("Backpack", s) end)}); TT4:Space({Size=8})
 TT4:Toggle({Title="Posición Baja (Doggy)", Def=false, Callback=AS(function(s) TargetToggle("Doggy", s) end)})
 TargetTog:Space({Size=6})
 local TT5 = TargetTog:Group({})
 TT5:Toggle({Title="Arrastrar (Drag)", Def=false, Callback=AS(function(s) TargetToggle("Drag", s) end)})
 TargetTab:Space({Size=10})
-
 TargetTab:Section({Title="⚡ Acciones (una vez)", TextSize=18}); TargetTab:Space({Size=6})
 local TargetAct = TargetTab:Section({Title="", Box=true, BoxBorder=true, Opened=true})
 local TAR1 = TargetAct:Group({})
@@ -1486,10 +1199,7 @@ TAR1:Button({Title="Empujar (1x)", Icon="arrow-up-right", Justify="Center", Call
     local t = TargetCurrent(); if not t then WindUI:Notify({Title="Target", Content="Sin objetivo", Duration=2}); return end
     local r = TargetGetRoot(LocalPlayer); if not r then return end
     local cf = r.CFrame
-    TargetPredictionTP(t)
-    task.wait(TargetGetPing() + 0.05)
-    TargetPush(t)
-    r.CFrame = cf
+    TargetPredictionTP(t); task.wait(TargetGetPing() + 0.05); TargetPush(t); r.CFrame = cf
 end})
 TAR1:Space({Size=8})
 TAR1:Button({Title="TP al Objetivo", Icon="map-pin", Justify="Center", Callback=function()
@@ -1499,23 +1209,16 @@ TargetAct:Space({Size=6})
 local TAR2 = TargetAct:Group({})
 TAR2:Button({Title="Lista Blanca (agregar/quitar)", Icon="shield-check", Justify="Center", Callback=function()
     local t = TargetCurrent(); if not t then WindUI:Notify({Title="Target", Content="Sin objetivo", Duration=2}); return end
-    local id = t.UserId
-    local idx = table.find(TargetWhitelist, id)
-    if idx then
-        table.remove(TargetWhitelist, idx)
-        WindUI:Notify({Title="Target", Content=t.Name.." ELIMINADO de lista blanca", Duration=3})
-    else
-        table.insert(TargetWhitelist, id)
-        WindUI:Notify({Title="Target", Content=t.Name.." AGREGADO a lista blanca", Duration=3})
-    end
+    local id = t.UserId; local idx = table.find(TargetWhitelist, id)
+    if idx then table.remove(TargetWhitelist, idx); WindUI:Notify({Title="Target", Content=t.Name.." ELIMINADO de lista blanca", Duration=3})
+    else table.insert(TargetWhitelist, id); WindUI:Notify({Title="Target", Content=t.Name.." AGREGADO a lista blanca", Duration=3}) end
 end})
 TAR2:Space({Size=8})
 TAR2:Button({Title="Limpiar Objetivo", Icon="x", Justify="Center", Callback=function() TargetSelect(nil) end})
 TargetTab:Space({Size=12})
 
--- 5. RJ=New.SV — ventana de servidores en AMARILLO PASTEL
+-- 5. RJ=New.SV
 local RJTab = Window:Tab({Title="RJ=New.SV", Icon="globe"})
-
 local AutoOn = false
 local AutoCoroutine = nil
 local ServerList = {}
@@ -1527,208 +1230,112 @@ local ServerListGui = nil
 local function Fetch()
     local Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Asc&limit=100", game.PlaceId)
     local Ok, Data = pcall(function() return game:HttpGet(Url) end)
-    if not Ok or not Data then
-        if RJStatus and RJStatus.SetDesc then RJStatus:SetDesc("Error de conexión") end
-        return nil
-    end
+    if not Ok or not Data then if RJStatus and RJStatus.SetDesc then RJStatus:SetDesc("Error de conexión") end; return nil end
     local Http = game:GetService("HttpService")
     local DecodeOk, Json = pcall(Http.JSONDecode, Http, Data)
-    if not DecodeOk or not Json or not Json.data then
-        if RJStatus and RJStatus.SetDesc then RJStatus:SetDesc("Respuesta inválida") end
-        return nil
-    end
+    if not DecodeOk or not Json or not Json.data then if RJStatus and RJStatus.SetDesc then RJStatus:SetDesc("Respuesta inválida") end; return nil end
     local CurrentId = tostring(game.JobId)
     local Result = {}
     for _, S in ipairs(Json.data) do
         if S.id and tostring(S.id) ~= CurrentId then
-            table.insert(Result, {
-                Id = tostring(S.id),
-                Players = S.playing or 0,
-                Max = S.maxPlayers or 0,
-                Ping = S.ping or 0
-            })
+            table.insert(Result, {Id = tostring(S.id), Players = S.playing or 0, Max = S.maxPlayers or 0, Ping = S.ping or 0})
         end
     end
     return Result
 end
-
 local function JoinBest()
     local Limit = math.max(1, RJLimit)
-    if #Players:GetPlayers() <= Limit then
-        if RJStatus and RJStatus.SetDesc then RJStatus:SetDesc("Servidor óptimo") end
-        return
-    end
+    if #Players:GetPlayers() <= Limit then if RJStatus and RJStatus.SetDesc then RJStatus:SetDesc("Servidor óptimo") end; return end
     local Servers = Fetch() or ServerList
     if not Servers or #Servers == 0 then return end
     local Candidates = {}
-    for _, S in ipairs(Servers) do
-        if S.Players <= Limit then table.insert(Candidates, S) end
-    end
+    for _, S in ipairs(Servers) do if S.Players <= Limit then table.insert(Candidates, S) end end
     local Target = #Candidates > 0 and Candidates[math.random(#Candidates)] or Servers[math.random(#Servers)]
     ServidoresVisitados[Target.Id] = true; pcall(SaveConfig)
     if RJStatus and RJStatus.SetDesc then RJStatus:SetDesc("Teletransportando...") end
     pcall(function() TeleportService:TeleportToPlaceInstance(game.PlaceId, Target.Id, LocalPlayer) end)
 end
-
 local function SetAutoHop(on)
     AutoOn = on
     if on then
-        AutoCoroutine = task.spawn(function()
-            while AutoOn do
-                JoinBest()
-                task.wait(4)
-            end
-        end)
+        AutoCoroutine = task.spawn(function() while AutoOn do JoinBest(); task.wait(4) end end)
     else
         if AutoCoroutine then pcall(function() task.cancel(AutoCoroutine) end); AutoCoroutine = nil end
         if RJStatus and RJStatus.SetDesc then RJStatus:SetDesc("Detenido") end
     end
 end
 
--- ██ VENTANA INDEPENDIENTE: LISTA DE SERVIDORES (amarillo pastel) ██
 local function CerrarListaServidores()
-    if ServerListGui then
-        pcall(function() ServerListGui:Destroy() end)
-        ServerListGui = nil
-    end
+    if ServerListGui then pcall(function() ServerListGui:Destroy() end); ServerListGui = nil end
 end
-
 local function AbrirListaServidores()
     if ServerListGui then return end
     local Http = game:GetService("HttpService")
     local TweenService = game:GetService("TweenService")
-
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "ServidoresDisponibles"
-    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Name = "ServidoresDisponibles"; ScreenGui.ResetOnSpawn = false
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    if gethui then
-        ScreenGui.Parent = gethui()
-    elseif syn and syn.protect_gui then
-        syn.protect_gui(ScreenGui)
-        ScreenGui.Parent = game.CoreGui
-    else
-        ScreenGui.Parent = game:GetService("CoreGui")
-    end
+    if gethui then ScreenGui.Parent = gethui()
+    elseif syn and syn.protect_gui then syn.protect_gui(ScreenGui); ScreenGui.Parent = game.CoreGui
+    else ScreenGui.Parent = game:GetService("CoreGui") end
     ServerListGui = ScreenGui
-    local SelectedServer = nil
-    local SelectedBtn = nil
-
+    local SelectedServer = nil; local SelectedBtn = nil
     local Main = Instance.new("Frame")
-    Main.Parent = ScreenGui
-    Main.Name = "Main"
-    Main.BackgroundColor3 = Color3.fromRGB(255, 245, 190) -- amarillo pastel
-    Main.BackgroundTransparency = 0.25
-    Main.BorderSizePixel = 0
-    Main.Position = UDim2.new(0.5, -150, 0.5, -200)
-    Main.Size = UDim2.new(0, 300, 0, 400)
-    Main.Active = true
-    Main.Draggable = true
-    Main.ClipsDescendants = true
+    Main.Parent = ScreenGui; Main.Name = "Main"
+    Main.BackgroundColor3 = Color3.fromRGB(255, 245, 190); Main.BackgroundTransparency = 0.25; Main.BorderSizePixel = 0
+    Main.Position = UDim2.new(0.5, -150, 0.5, -200); Main.Size = UDim2.new(0, 300, 0, 400)
+    Main.Active = true; Main.Draggable = true; Main.ClipsDescendants = true
     Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 10)
-    local Stroke = Instance.new("UIStroke", Main)
-    Stroke.Color = Color3.fromRGB(230, 200, 100)
-    Stroke.Thickness = 1.5
-    Stroke.Transparency = 0.2
-
+    local Stroke = Instance.new("UIStroke", Main); Stroke.Color = Color3.fromRGB(230, 200, 100); Stroke.Thickness = 1.5; Stroke.Transparency = 0.2
     local Title = Instance.new("TextLabel")
-    Title.Parent = Main
-    Title.Position = UDim2.new(0, 12, 0, 9)
-    Title.Size = UDim2.new(1, -100, 0, 20)
-    Title.BackgroundTransparency = 1
-    Title.Font = Enum.Font.GothamBold
-    Title.Text = "Servidores Disponibles"
-    Title.TextColor3 = Color3.fromRGB(110, 85, 15)
-    Title.TextSize = 13
-    Title.TextXAlignment = Enum.TextXAlignment.Left
-
+    Title.Parent = Main; Title.Position = UDim2.new(0, 12, 0, 9); Title.Size = UDim2.new(1, -100, 0, 20)
+    Title.BackgroundTransparency = 1; Title.Font = Enum.Font.GothamBold; Title.Text = "Servidores Disponibles"
+    Title.TextColor3 = Color3.fromRGB(110, 85, 15); Title.TextSize = 13; Title.TextXAlignment = Enum.TextXAlignment.Left
     local Refresh = Instance.new("TextButton")
-    Refresh.Parent = Main
-    Refresh.BackgroundColor3 = Color3.fromRGB(250, 225, 130)
-    Refresh.BackgroundTransparency = 0.10
-    Refresh.Position = UDim2.new(1, -100, 0, 8)
-    Refresh.Size = UDim2.new(0, 64, 0, 22)
-    Refresh.Font = Enum.Font.GothamBold
-    Refresh.Text = "Recargar"
-    Refresh.TextColor3 = Color3.fromRGB(110, 85, 15)
-    Refresh.TextSize = 9
+    Refresh.Parent = Main; Refresh.BackgroundColor3 = Color3.fromRGB(250, 225, 130); Refresh.BackgroundTransparency = 0.10
+    Refresh.Position = UDim2.new(1, -100, 0, 8); Refresh.Size = UDim2.new(0, 64, 0, 22)
+    Refresh.Font = Enum.Font.GothamBold; Refresh.Text = "Recargar"; Refresh.TextColor3 = Color3.fromRGB(110, 85, 15); Refresh.TextSize = 9
     Instance.new("UICorner", Refresh).CornerRadius = UDim.new(0, 6)
-
     local Close = Instance.new("TextButton")
-    Close.Parent = Main
-    Close.BackgroundColor3 = Color3.fromRGB(245, 210, 105)
-    Close.BackgroundTransparency = 0.05
-    Close.Position = UDim2.new(1, -30, 0, 8)
-    Close.Size = UDim2.new(0, 22, 0, 22)
-    Close.Font = Enum.Font.GothamBold
-    Close.Text = "X"
-    Close.TextColor3 = Color3.fromRGB(110, 80, 10)
-    Close.TextSize = 12
+    Close.Parent = Main; Close.BackgroundColor3 = Color3.fromRGB(245, 210, 105); Close.BackgroundTransparency = 0.05
+    Close.Position = UDim2.new(1, -30, 0, 8); Close.Size = UDim2.new(0, 22, 0, 22)
+    Close.Font = Enum.Font.GothamBold; Close.Text = "X"; Close.TextColor3 = Color3.fromRGB(110, 80, 10); Close.TextSize = 12
     Instance.new("UICorner", Close).CornerRadius = UDim.new(0, 6)
     Close.MouseButton1Click:Connect(CerrarListaServidores)
-
     local List = Instance.new("ScrollingFrame")
-    List.Parent = Main
-    List.Position = UDim2.new(0, 10, 0, 38)
-    List.Size = UDim2.new(1, -20, 1, -90)
-    List.BackgroundColor3 = Color3.fromRGB(255, 248, 210)
-    List.BackgroundTransparency = 0.30
-    List.BorderSizePixel = 0
-    List.ScrollBarThickness = 4
-    List.ScrollBarImageColor3 = Color3.fromRGB(215, 185, 80)
-    List.CanvasSize = UDim2.new(0, 0, 0, 0)
-    List.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    List.Parent = Main; List.Position = UDim2.new(0, 10, 0, 38); List.Size = UDim2.new(1, -20, 1, -90)
+    List.BackgroundColor3 = Color3.fromRGB(255, 248, 210); List.BackgroundTransparency = 0.30; List.BorderSizePixel = 0
+    List.ScrollBarThickness = 4; List.ScrollBarImageColor3 = Color3.fromRGB(215, 185, 80)
+    List.CanvasSize = UDim2.new(0, 0, 0, 0); List.AutomaticCanvasSize = Enum.AutomaticSize.Y
     Instance.new("UICorner", List).CornerRadius = UDim.new(0, 8)
-    local Layout = Instance.new("UIListLayout")
-    Layout.Parent = List
-    Layout.Padding = UDim.new(0, 4)
-    Layout.SortOrder = Enum.SortOrder.LayoutOrder
-    local Pad = Instance.new("UIPadding")
-    Pad.Parent = List
-    Pad.PaddingTop = UDim.new(0, 6)
-    Pad.PaddingBottom = UDim.new(0, 6)
-
+    local Layout = Instance.new("UIListLayout"); Layout.Parent = List; Layout.Padding = UDim.new(0, 4); Layout.SortOrder = Enum.SortOrder.LayoutOrder
+    local Pad = Instance.new("UIPadding"); Pad.Parent = List; Pad.PaddingTop = UDim.new(0, 6); Pad.PaddingBottom = UDim.new(0, 6)
     local function Hover(btn, normal, over)
         btn.MouseEnter:Connect(function() if not btn:GetAttribute("Selected") then TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = over}):Play() end end)
         btn.MouseLeave:Connect(function() if not btn:GetAttribute("Selected") then TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = normal}):Play() end end)
     end
-
     local TPBtn = Instance.new("TextButton")
-    TPBtn.Parent = Main
-    TPBtn.Position = UDim2.new(0, 10, 1, -44)
-    TPBtn.Size = UDim2.new(1, -20, 0, 34)
-    TPBtn.BackgroundColor3 = ColorAccent
-    TPBtn.BackgroundTransparency = 0.05
-    TPBtn.BorderSizePixel = 0
-    TPBtn.Font = Enum.Font.GothamBold
-    TPBtn.Text = "TP al Servidor Seleccionado"
-    TPBtn.TextColor3 = Color3.fromRGB(90, 70, 15)
-    TPBtn.TextSize = 12
+    TPBtn.Parent = Main; TPBtn.Position = UDim2.new(0, 10, 1, -44); TPBtn.Size = UDim2.new(1, -20, 0, 34)
+    TPBtn.BackgroundColor3 = ColorAccent; TPBtn.BackgroundTransparency = 0.05; TPBtn.BorderSizePixel = 0
+    TPBtn.Font = Enum.Font.GothamBold; TPBtn.Text = "TP al Servidor Seleccionado"
+    TPBtn.TextColor3 = Color3.fromRGB(90, 70, 15); TPBtn.TextSize = 12
     Instance.new("UICorner", TPBtn).CornerRadius = UDim.new(0, 8)
     RefTPBtn = TPBtn
     TPBtn.MouseButton1Click:Connect(function()
-        if not SelectedServer then
-            pcall(function() WindUI:Notify({Title="Servidores", Content="Selecciona un servidor primero", Duration=2}) end)
-            return
-        end
+        if not SelectedServer then pcall(function() WindUI:Notify({Title="Servidores", Content="Selecciona un servidor primero", Duration=2}) end); return end
         pcall(function() ServidoresVisitados[SelectedServer.Id] = true; pcall(SaveConfig) end)
         pcall(function() WindUI:Notify({Title="Servidores", Content="Teletransportando al servidor seleccionado...", Duration=2}) end)
         pcall(function() TeleportService:TeleportToPlaceInstance(game.PlaceId, SelectedServer.Id, LocalPlayer) end)
     end)
-
     local function LoadServers()
         if not ServerListGui then return end
         SelectedServer = nil; SelectedBtn = nil
         if TPBtn then TPBtn.Text = "TP al Servidor Seleccionado" end
         for _, c in ipairs(List:GetChildren()) do if c:IsA("TextButton") or c:IsA("TextLabel") then c:Destroy() end end
         local Loading = Instance.new("TextLabel")
-        Loading.Parent = List
-        Loading.Size = UDim2.new(1, -8, 0, 26)
-        Loading.BackgroundTransparency = 1
-        Loading.Font = Enum.Font.Gotham
-        Loading.Text = "Cargando servidores..."
-        Loading.TextColor3 = Color3.fromRGB(110, 85, 15)
-        Loading.TextSize = 11
+        Loading.Parent = List; Loading.Size = UDim2.new(1, -8, 0, 26); Loading.BackgroundTransparency = 1
+        Loading.Font = Enum.Font.Gotham; Loading.Text = "Cargando servidores..."
+        Loading.TextColor3 = Color3.fromRGB(110, 85, 15); Loading.TextSize = 11
         task.spawn(function()
             local url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Asc&limit=100", game.PlaceId)
             local ok, raw = pcall(function() return game:HttpGet(url) end)
@@ -1745,27 +1352,19 @@ local function AbrirListaServidores()
                         table.insert(ServerList, {Id=tostring(srv.id), Players=srv.playing or 0, Max=srv.maxPlayers or 0, Ping=srv.ping or 0})
                     end
                     local btn = Instance.new("TextButton")
-                    btn.Parent = List
-                    btn.Size = UDim2.new(1, -8, 0, 30)
-                    btn.BackgroundTransparency = 0.10
-                    btn.BorderSizePixel = 0
-                    btn.Font = Enum.Font.Gotham
-                    btn.TextSize = 11
-                    btn.TextXAlignment = Enum.TextXAlignment.Left
+                    btn.Parent = List; btn.Size = UDim2.new(1, -8, 0, 30); btn.BackgroundTransparency = 0.10
+                    btn.BorderSizePixel = 0; btn.Font = Enum.Font.Gotham; btn.TextSize = 11; btn.TextXAlignment = Enum.TextXAlignment.Left
                     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
                     if esActual then
-                        btn.BackgroundColor3 = Color3.fromRGB(255, 225, 90)
-                        btn.BackgroundTransparency = 0
+                        btn.BackgroundColor3 = Color3.fromRGB(255, 225, 90); btn.BackgroundTransparency = 0
                         btn.TextColor3 = Color3.fromRGB(110, 85, 10)
                         btn.Text = string.format("  (AQUI ESTAS) %d/%d jugadores  •  Ping: %dms", srv.playing or 0, srv.maxPlayers or 0, srv.ping or 0)
                     else
                         local visitado = ServidoresVisitados[tostring(srv.id)]
                         local baseColor = visitado and Color3.fromRGB(255, 228, 150) or Color3.fromRGB(255, 247, 200)
                         local overColor = visitado and Color3.fromRGB(250, 215, 120) or Color3.fromRGB(250, 232, 155)
-                        local textoColor = Color3.fromRGB(110, 85, 15)
                         local prefijo = visitado and "  (visitado) " or "  "
-                        btn.BackgroundColor3 = baseColor
-                        btn.TextColor3 = textoColor
+                        btn.BackgroundColor3 = baseColor; btn.TextColor3 = Color3.fromRGB(110, 85, 15)
                         btn.Text = string.format(prefijo.."%d/%d jugadores  •  Ping: %dms", srv.playing or 0, srv.maxPlayers or 0, srv.ping or 0)
                         Hover(btn, baseColor, overColor)
                         btn.MouseButton1Click:Connect(function()
@@ -1778,9 +1377,8 @@ local function AbrirListaServidores()
                             SelectedServer = {Id=tostring(srv.id), Players=srv.playing or 0, Max=srv.maxPlayers or 0, Ping=srv.ping or 0}
                             SelectedBtn = btn
                             btn:SetAttribute("Selected", true)
-                            btn.BackgroundColor3 = Color3.fromRGB(245, 205, 65) -- amarillo más vivo (seleccionado)
-                            btn.BackgroundTransparency = 0
-                            btn.TextColor3 = Color3.fromRGB(90, 70, 10)
+                            btn.BackgroundColor3 = Color3.fromRGB(245, 205, 65)
+                            btn.BackgroundTransparency = 0; btn.TextColor3 = Color3.fromRGB(90, 70, 10)
                             if TPBtn then TPBtn.Text = "TP: " .. SelectedServer.Players .. "/" .. SelectedServer.Max .. " jugadores" end
                         end)
                     end
@@ -1788,16 +1386,13 @@ local function AbrirListaServidores()
             end
         end)
     end
-
     Refresh.MouseButton1Click:Connect(LoadServers)
     Hover(Refresh, Color3.fromRGB(250, 225, 130), Color3.fromRGB(255, 235, 150))
     Hover(Close, Color3.fromRGB(245, 210, 105), Color3.fromRGB(255, 180, 90))
     LoadServers()
 end
-
 local function ToggleListaServidores()
-    if ServerListGui then CerrarListaServidores()
-    else AbrirListaServidores() end
+    if ServerListGui then CerrarListaServidores() else AbrirListaServidores() end
 end
 
 RJTab:Section({Title="RJ = New Server", TextSize=20}); RJTab:Space({Size=6})
@@ -1807,8 +1402,7 @@ RJCounter = RJTab:Paragraph({Title="Jugadores", Desc="Jugadores: "..#Players:Get
 RJTab:Space({Size=8})
 pcall(function()
     RJTab:TextBox({Title="Máx jugadores por servidor", PlaceholderText="1", Callback=function(t)
-        local n = tonumber(t)
-        if n and n >= 1 then RJLimit = math.floor(n) end
+        local n = tonumber(t); if n and n >= 1 then RJLimit = math.floor(n) end
     end})
 end)
 RJTab:Space({Size=8})
@@ -1819,13 +1413,8 @@ RJBtnRow:Toggle({Title="Auto Hop", Def=false, Callback=function(s) SetAutoHop(s)
 RJTab:Space({Size=8})
 RJTab:Button({Title="Abrir / Cerrar Lista de Servidores", Icon="globe", Justify="Center", Callback=ToggleListaServidores})
 RJTab:Space({Size=12})
-
 task.spawn(function()
-    while task.wait(1) do
-        if RJCounter and RJCounter.SetDesc then
-            RJCounter:SetDesc("Jugadores: " .. #Players:GetPlayers())
-        end
-    end
+    while task.wait(1) do if RJCounter and RJCounter.SetDesc then RJCounter:SetDesc("Jugadores: " .. #Players:GetPlayers()) end end
 end)
 
 -- 6. ESCUDOS
@@ -1833,33 +1422,21 @@ local EscudosTab = Window:Tab({Title="Escudos", Icon="shield"})
 EscudosTab:Section({Title="🛡️ Protección y Defensas (reales)", TextSize=20}); EscudosTab:Space({Size=6})
 EscudosTab:Paragraph({Title="Nota", Desc="Anti-Kick solo bloquea kicks de scripts locales. Un kick del servidor no se puede bloquear del lado del cliente.", Image="info", ImageSize=14})
 EscudosTab:Space({Size=8})
-
 local function shieldPair(t1, cb1, d1, t2, cb2, d2)
     local r = EscudosTab:Group({})
     r:Toggle({Title=t1, Def=d1, Callback=AS(cb1)}); r:Space({Size=8})
     r:Toggle({Title=t2, Def=d2, Callback=AS(cb2)})
     EscudosTab:Space({Size=8})
 end
-
-shieldPair("Anti-AFK (Real)", SetAntiAFK, Get("AntiAFKEnabled", false),
-           "Anti-Kick (Hook Local)", SetAntiKick, Get("AntiKickEnabled", false))
-shieldPair("Anti-Reset (Bloquea Reset)", SetAntiReset, Get("AntiResetEnabled", false),
-           "Anti-Sit (No te sientan)", SetAntiSit, Get("AntiSitEnabled", false))
-shieldPair("Anti-Fling (Anti-Lanzamiento)", SetAntiFling, Get("AntiFlingEnabled", false),
-           "Anti-Freeze (Desanclar Auto.)", SetAntiFreeze, Get("AntiFreezeEnabled", false))
-shieldPair("Anti-Ragdoll", function(s) AntiRagdollEnabled = s end, Get("AntiRagdollEnabled", false),
-           "Anti-Void", function(s) AntiVoidEnabled = s end, Get("AntiVoidEnabled", false))
-shieldPair("No Empuje", function(s) NoPushEnabled = s end, Get("NoPushEnabled", false),
-           "No Retroceso", function(s) NoKnockbackEnabled = s end, Get("NoKnockbackEnabled", false))
-shieldPair("God Mode (Local)", function(s) GodModeEnabled = s end, Get("GodModeEnabled", false),
-           "Auto-Rejoin al Morir", function(s) AutoRejoinEnabled = s end, Get("AutoRejoinEnabled", false))
-shieldPair("Anti-Report (Oculta UI)", SetAntiReport, Get("AntiReportEnabled", false),
-           "No Fall Damage", SetNoFallDamage, Get("NoFallDamageEnabled", false))
-
+shieldPair("Anti-AFK (Real)", SetAntiAFK, Get("AntiAFKEnabled", false), "Anti-Kick (Hook Local)", SetAntiKick, Get("AntiKickEnabled", false))
+shieldPair("Anti-Reset (Bloquea Reset)", SetAntiReset, Get("AntiResetEnabled", false), "Anti-Sit (No te sientan)", SetAntiSit, Get("AntiSitEnabled", false))
+shieldPair("Anti-Fling (Anti-Lanzamiento)", SetAntiFling, Get("AntiFlingEnabled", false), "Anti-Freeze (Desanclar Auto.)", SetAntiFreeze, Get("AntiFreezeEnabled", false))
+shieldPair("Anti-Ragdoll", function(s) AntiRagdollEnabled = s end, Get("AntiRagdollEnabled", false), "Anti-Void", function(s) AntiVoidEnabled = s end, Get("AntiVoidEnabled", false))
+shieldPair("No Empuje", function(s) NoPushEnabled = s end, Get("NoPushEnabled", false), "No Retroceso", function(s) NoKnockbackEnabled = s end, Get("NoKnockbackEnabled", false))
+shieldPair("God Mode (Local)", function(s) GodModeEnabled = s end, Get("GodModeEnabled", false), "Auto-Rejoin al Morir", function(s) AutoRejoinEnabled = s end, Get("AutoRejoinEnabled", false))
+shieldPair("Anti-Report (Oculta UI)", SetAntiReport, Get("AntiReportEnabled", false), "No Fall Damage", SetNoFallDamage, Get("NoFallDamageEnabled", false))
 local GAntiVC = EscudosTab:Group({})
 GAntiVC:Toggle({Title="Anti-VC Ultra", Desc="Spam reconexion de voz (anti-VC agresivo)", Def=Get("AntiVCEnabled", false), Callback=AS(SetAntiVC)})
-EscudosTab:Space({Size=8})
-
 EscudosTab:Space({Size=12})
 
 -- 7. HERRAMIENTAS
@@ -1969,7 +1546,7 @@ Cr:Paragraph({Title="Gracias por usar", Desc="¡Disfruta el script!", Image="hea
 Cr:Space({Size=12})
 Cr:Paragraph({Title="", Desc="tonto el que ha leído esto", Image="smile", ImageSize=16})
 
--- Loop en tiempo real
+-- LOOP EN TIEMPO REAL
 task.spawn(function()
     while task.wait(0.1) do
         if not Character or not RootPart then UpdateChar() end
@@ -2003,9 +1580,7 @@ task.spawn(function()
         if AntiSitEnabled and Humanoid then
             pcall(function() Humanoid.Sit=false; Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false) end)
         end
-        if AntiFreezeEnabled and not FreezePositionEnabled and RootPart and RootPart.Anchored then
-            RootPart.Anchored = false
-        end
+        if AntiFreezeEnabled and not FreezePositionEnabled and RootPart and RootPart.Anchored then RootPart.Anchored = false end
         if CoordsParagraph and RootPart and CoordsParagraph.SetDesc then
             local p=RootPart.Position; CoordsParagraph:SetDesc("X: "..math.floor(p.X).."  Y: "..math.floor(p.Y).."  Z: "..math.floor(p.Z))
         end
@@ -2033,85 +1608,46 @@ end)
 AplicarConfiguracion()
 task.spawn(function() task.wait(1.5); pcall(AplicarConfiguracion) end)
 
--- === CUADRO DE PERFIL: foto 100x100 a la DERECHA, nombre + ID a la IZQUIERDA ===
+-- CUADRO DE PERFIL
 task.spawn(function()
     pcall(function()
         task.wait(0.6)
         if not PlayerTab then return end
         local Contenedor = nil
         pcall(function() Contenedor = PlayerTab.UIElements and PlayerTab.UIElements.ContainerFrame end)
-        if not Contenedor then pcall(function() Contenedor = PlayerTab.ContainerFrame end) end
-        if not Contenedor then pcall(function() Contenedor = PlayerTab.Container end) end
-        if not Contenedor then pcall(function() Contenedor = Window.SideBar and Window.SideBar.Parent end) end
+        if not Contenedor then pcall(function() Contenedor = PlayerTab.ContainerFrame end) end)
+        if not Contenedor then pcall(function() Contenedor = PlayerTab.Container end) end)
+        if not Contenedor then pcall(function() Contenedor = Window.SideBar and Window.SideBar.Parent end) end)
         if not Contenedor then return end
-
         local Box = Instance.new("Frame")
-        Box.Name = "PerfilCuadro"
-        Box.Parent = Contenedor
-        Box.LayoutOrder = -100
+        Box.Name = "PerfilCuadro"; Box.Parent = Contenedor; Box.LayoutOrder = -100
         Box.Size = UDim2.new(1, -16, 0, 116)
-        Box.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        Box.BackgroundTransparency = 0.86
-        Box.BorderSizePixel = 0
-        Box.Active = false
+        Box.BackgroundColor3 = Color3.fromRGB(255, 255, 255); Box.BackgroundTransparency = 0.86
+        Box.BorderSizePixel = 0; Box.Active = false
         Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 10)
-        Box.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        Box.BackgroundTransparency = 0.86
-        local BordeBox = Instance.new("UIStroke")
-        BordeBox.Parent = Box
-        BordeBox.Thickness = 1
-        BordeBox.Color = ColorAccent
-        BordeBox.Transparency = 0.35
+        local BordeBox = Instance.new("UIStroke"); BordeBox.Parent = Box; BordeBox.Thickness = 1; BordeBox.Color = ColorAccent; BordeBox.Transparency = 0.35
         RefBordePerfil = BordeBox
-
         local Circulo = Instance.new("Frame")
-        Circulo.Name = "CirculoPerfil"
-        Circulo.Parent = Box
-        Circulo.BackgroundColor3 = Color3.fromRGB(255, 240, 170) -- amarillo pastel
-        Circulo.BackgroundTransparency = 1
-        Circulo.Position = UDim2.new(1, -108, 0.5, -50)
-        Circulo.Size = UDim2.new(0, 100, 0, 100)
-        Circulo.ZIndex = 51
-        Circulo.Active = false
+        Circulo.Name = "CirculoPerfil"; Circulo.Parent = Box
+        Circulo.BackgroundColor3 = Color3.fromRGB(255, 240, 170); Circulo.BackgroundTransparency = 1
+        Circulo.Position = UDim2.new(1, -108, 0.5, -50); Circulo.Size = UDim2.new(0, 100, 0, 100)
+        Circulo.ZIndex = 51; Circulo.Active = false
         Instance.new("UICorner", Circulo).CornerRadius = UDim.new(1, 0)
-        local Borde = Instance.new("UIStroke")
-        Borde.Thickness = 3
-        Borde.Color = ColorAccent
-        Borde.Parent = Circulo
+        local Borde = Instance.new("UIStroke"); Borde.Thickness = 3; Borde.Color = ColorAccent; Borde.Parent = Circulo
         RefBordeCirculo = Borde
-
         local Foto = Instance.new("ImageLabel")
-        Foto.Name = "Foto"
-        Foto.Parent = Circulo
-        Foto.BackgroundTransparency = 1
-        Foto.Position = UDim2.new(0, 5, 0, 5)
-        Foto.Size = UDim2.new(1, -10, 1, -10)
-        Foto.ZIndex = 52
+        Foto.Name = "Foto"; Foto.Parent = Circulo; Foto.BackgroundTransparency = 1
+        Foto.Position = UDim2.new(0, 5, 0, 5); Foto.Size = UDim2.new(1, -10, 1, -10); Foto.ZIndex = 52
         Instance.new("UICorner", Foto).CornerRadius = UDim.new(1, 0)
-
-        local Cargar = pcall(function()
-            Foto.Image = Players:GetUserThumbnailAsync(
-                UserId,
-                Enum.ThumbnailType.HeadShot,
-                Enum.ThumbnailSize.Size420x420
-            )
-        end)
-        if not Cargar then
-            Foto.Image = "rbxassetid://6026588573"
-        end
-
+        local Cargar = pcall(function() Foto.Image = Players:GetUserThumbnailAsync(UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420) end)
+        if not Cargar then Foto.Image = "rbxassetid://6026588573" end
         local function HacerTexto(y, texto, tamano, bold, color)
             local lbl = Instance.new("TextLabel")
-            lbl.Parent = Box
-            lbl.BackgroundTransparency = 1
-            lbl.Position = UDim2.new(0, 14, 0, y)
-            lbl.Size = UDim2.new(1, -130, 0, tamano + 6)
+            lbl.Parent = Box; lbl.BackgroundTransparency = 1
+            lbl.Position = UDim2.new(0, 14, 0, y); lbl.Size = UDim2.new(1, -130, 0, tamano + 6)
             lbl.Font = bold and Enum.Font.GothamBold or Enum.Font.Gotham
-            lbl.Text = texto
-            lbl.TextColor3 = color
-            lbl.TextSize = tamano
-            lbl.TextXAlignment = Enum.TextXAlignment.Left
-            lbl.TextTruncate = Enum.TextTruncate.AtEnd
+            lbl.Text = texto; lbl.TextColor3 = color; lbl.TextSize = tamano
+            lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.TextTruncate = Enum.TextTruncate.AtEnd
             return lbl
         end
         HacerTexto(14, DisplayName, 19, true, Color3.fromRGB(245, 245, 250))
@@ -2125,7 +1661,9 @@ pcall(function() Window:SelectTab(1) end)
 
 WindUI:Notify({Title="CHOCOFRZ🍰", Content="v34: Tema Amarillo Pastel + foto de fondo más clara", Duration=4})
 
--- [v35] PARCHE: Repintar botones/sliders a amarillo pastel + aclarar fondo
+-- ==============================================================
+-- [v35] PARCHE FINAL CORREGIDO: Repintar + aclarar fondo
+-- ==============================================================
 task.spawn(function()
     task.wait(0.4)
 
@@ -2152,7 +1690,7 @@ task.spawn(function()
     local AmarilloVivo   = Color3.fromRGB(245, 205, 65)
     local ColorTextoOscuro = Color3.fromRGB(90, 70, 15)
 
-    -- Pintar botones (TextButton / ImageButton)
+    -- Pintar botones
     local function PintarBoton(d)
         if not (d:IsA("TextButton") or d:IsA("ImageButton")) then return end
         pcall(function()
@@ -2161,13 +1699,10 @@ task.spawn(function()
                 d.BackgroundColor3 = Amarillo
                 if d.BackgroundTransparency > 0.5 then d.BackgroundTransparency = 0.15 end
             end
-            if d:IsA("TextButton") and d.TextColor3.R > 0.8 and d.TextColor3.G > 0.8 and d.TextColor3.B > 0.8 then
-                -- texto blanco sobre botón amarillo → dejar blanco si se ve bien, o cambiar a oscuro
-            end
         end)
     end
 
-    -- Pintar "knob" de sliders (círculo pequeño) y toggles
+    -- Pintar knob de sliders / toggles (círculos pequeños)
     local function PintarKnob(d)
         if not d:IsA("Frame") then return end
         pcall(function()
@@ -2181,7 +1716,7 @@ task.spawn(function()
         end)
     end
 
-    -- Aclarar la foto de fondo y el velo oscuro
+    -- Aclarar foto de fondo y velo oscuro
     local function AclararFondo()
         pcall(function()
             for _, d in ipairs(gui:GetDescendants()) do
@@ -2214,7 +1749,7 @@ task.spawn(function()
     AclararFondo()
     RepintarTodo()
 
-    -- Texto del cuadro de perfil (blanco sobre fondo claro no se lee)
+    -- Texto del cuadro de perfil (legible sobre fondo claro)
     pcall(function()
         local box = gui:FindFirstChild("PerfilCuadro", true)
         if box then
@@ -2238,7 +1773,6 @@ task.spawn(function()
     end
 end)
 
--- [v35] Notificación final
 pcall(function()
     WindUI:Notify({Title="TKSH v35", Content="Foto aclarada + botones amarillo pastel", Duration=4})
 end)
