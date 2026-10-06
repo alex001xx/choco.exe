@@ -26,6 +26,11 @@ HidePosEnabled, HidePosConn, HideParts = false, nil, {}
 AutoClickerEnabled, AutoClickerCPS = false, 10
 NoFallDamageEnabled, NoFallConn = false, nil
 AntiAFKConn = nil
+
+-- [FIX] Declaraciones adelantadas para que el acento y la ventana se capturen bien en los cierres (closures)
+local Window = nil
+local ColorAccent = Color3.fromRGB(255, 235, 140)
+
 local Lighting = game:GetService("Lighting")
 local OriginalLight = {ClockTime=Lighting.ClockTime, Brightness=Lighting.Brightness, Ambient=Lighting.Ambient, OutdoorAmbient=Lighting.OutdoorAmbient, FogEnd=Lighting.FogEnd, GlobalShadows=Lighting.GlobalShadows, ExposureCompensation=Lighting.ExposureCompensation}
 local GameSettings = UserSettings().GameSettings
@@ -1130,8 +1135,8 @@ local function AS(fn)
     end
 end
 
--- 🎨 ACENTO: AMARILLO PASTEL
-local ColorAccent = Color3.fromRGB(255, 235, 140)
+-- 🎨 ACENTO: AMARILLO PASTEL ([FIX] asignación, no re-declaración)
+ColorAccent = Color3.fromRGB(255, 235, 140)
 local RefBordeCirculo, RefBordePerfil, RefTPBtn = nil, nil, nil
 local function AplicarColor(c)
     ColorAccent = c
@@ -1227,29 +1232,32 @@ end
 
 LoadConfig()
 
-- Definir colores
- local AmarilloPastel = Color3.fromHex("#F9E076")
- local FondoOscuro = Color3.fromHex("#121212")
- -- Reemplazar el tema oscuro con nuestros colores
- WindUI.Themes = WindUI.Themes or {}
- WindUI.Themes.Dark = WindUI.Themes.Dark or {}
- -- Asignar colores a cada elemento
- WindUI.Themes.Dark.Primary = AmarilloPastel
- WindUI.Themes.Dark.Button = AmarilloPastel
- WindUI.Themes.Dark.Icon = AmarilloPastel
- WindUI.Themes.Dark.Slider = AmarilloPastel
- WindUI.Themes.Dark.Toggle = AmarilloPastel
- WindUI.Themes.Dark.Checkbox = AmarilloPastel
- WindUI.Themes.Dark.TabBackground = AmarilloPastel
- WindUI.Themes.Dark.TabBackgroundHover = AmarilloPastel
- WindUI.Themes.Dark.TabBackgroundActive = AmarilloPastel
- WindUI.Themes.Dark.TabIcon = AmarilloPastel
- WindUI.Themes.Dark.ElementBackground = AmarilloPastel
- WindUI.Themes.Dark.ElementBackgroundTransparency = 0.2
- WindUI.Themes.Dark.Background = FondoOscuro
- WindUI.Themes.Dark.Dialog = FondoOscuro
- -- Aplicar el cambio
- WindUI:SetTheme("Dark")
+-- [FIX] comentario con DOS guiones (antes tenía uno solo y rompía la sintaxis)
+-- Definir colores
+local AmarilloPastel = Color3.fromHex("#F9E076")
+local FondoOscuro = Color3.fromHex("#121212")
+-- Reemplazar el tema oscuro con nuestros colores
+WindUI.Themes = WindUI.Themes or {}
+WindUI.Themes.Dark = WindUI.Themes.Dark or {}
+-- Asignar colores a cada elemento
+WindUI.Themes.Dark.Primary = AmarilloPastel
+WindUI.Themes.Dark.Button = AmarilloPastel
+WindUI.Themes.Dark.Icon = AmarilloPastel
+WindUI.Themes.Dark.Slider = AmarilloPastel
+WindUI.Themes.Dark.Toggle = AmarilloPastel
+WindUI.Themes.Dark.Checkbox = AmarilloPastel
+WindUI.Themes.Dark.TabBackground = AmarilloPastel
+WindUI.Themes.Dark.TabBackgroundHover = AmarilloPastel
+WindUI.Themes.Dark.TabBackgroundActive = AmarilloPastel
+WindUI.Themes.Dark.TabIcon = AmarilloPastel
+WindUI.Themes.Dark.ElementBackground = AmarilloPastel
+WindUI.Themes.Dark.ElementBackgroundTransparency = 0.2
+WindUI.Themes.Dark.Background = FondoOscuro
+WindUI.Themes.Dark.Dialog = FondoOscuro
+
+-- [FIX] FALTABA esta línea: crear la ventana. Antes había un `WindUI:SetTheme("Dark")` suelto
+-- y luego los campos de la tabla sin constructor, lo cual es error de sintaxis.
+Window = WindUI:CreateWindow({
     Title="TKSH🍰", Icon="sword", Author="CHOCOFRZ🍓", Folder="DENJI•ALEX",
     Size=UDim2.fromOffset(600,540), MinSize=Vector2.new(520,420), MaxSize=Vector2.new(850,680),
     Transparent=true, Theme="Dark", Resizable=true, SideBarWidth=160,
@@ -1260,6 +1268,7 @@ LoadConfig()
     HideSearchBar = true, Accent=Color3.fromRGB(255, 235, 140), -- [v34] acento amarillo pastel (botones, sliders, toggles)
     OpenButton={Title="CHOCOFRZ 🍓", Icon="sword", Enabled=true, Draggable=true, OnlyMobile=false, CornerRadius=UDim.new(1,0), StrokeThickness=2, StrokeColor=Color3.fromRGB(255, 235, 140), Scale=1},
 })
+pcall(function() WindUI:SetTheme("Dark") end)
 pcall(function() AplicarColor(ColorAccent) end) -- fuerza el acento en WindUI al iniciar
 
 -- 1. PLAYER
@@ -2145,67 +2154,4 @@ end)
 pcall(function() Window:SelectTab(PlayerTab) end)
 pcall(function() Window:SelectTab(1) end)
 
-WindUI:Notify({Title="CHOCOFRZ🍰", Content="v34: Tema Amarillo Pastel + foto de fondo más clara", Duration=4})
-    -- Aclarar la foto de fondo y quitar el velo oscuro del tema Dark
-    local function AclararFondo()
-        pcall(function()
-            for _, d in ipairs(gui:GetDescendants()) do
-                -- La foto en sí: más transparente = se ve más clara y tenue
-                if d:IsA("ImageLabel") and d.Image and d.Image:find("81943489858207") then
-                    d.ImageTransparency = 0.82
-                end
-                -- El velo/recuadro oscuro que tapa la foto: cambiar a tono cálido más claro
-                if d:IsA("Frame") and not d:FindFirstAncestorWhichIsA("TextButton") then
-                    local tamX, tamY = d.AbsoluteSize.X, d.AbsoluteSize.Y
-                    if tamX > 280 and tamY > 180 and d.BackgroundTransparency < 0.95 then
-                        local c = d.BackgroundColor3
-                        if c.R < 0.42 and c.G < 0.42 and c.B < 0.42 then
-                            d.BackgroundColor3 = Color3.fromRGB(82, 66, 35)  -- cálido, menos oscuro
-                            d.BackgroundTransparency = 0.50
-                        end
-                    end
-                end
-            end
-        end)
-    end
-
-    local function RepintarTodo()
-        pcall(function()
-            for _, d in ipairs(gui:GetDescendants()) do
-                PintarBoton(d)
-                PintarKnob(d)
-            end
-        end)
-    end
-
-    AclararFondo()
-    RepintarTodo()
-
-    -- Arreglar el texto del cuadro de perfil (está blanco y sobre fondo claro no se lee)
-    pcall(function()
-        local box = gui:FindFirstChild("PerfilCuadro", true)
-        if box then
-            for _, lbl in ipairs(box:GetDescendants()) do
-                if lbl:IsA("TextLabel") then lbl.TextColor3 = ColorTextoClaro end
-            end
-        end
-    end)
-
-    -- Botones/círculos que aparezcan después (dropdowns, al cambiar de tab, etc.)
-    gui.DescendantAdded:Connect(function(d)
-        task.wait(0.08)
-        PintarBoton(d)
-        PintarKnob(d)
-    end)
-
-    -- Re-afirmar cada segundo por si WindUI repinta al cambiar de pestaña
-    while task.wait(1) do
-        if not gui or not gui.Parent then break end
-        RepintarTodo()
-    end
-end)
-
--- [v35] Notificación de que el parche cargó
-pcall(function()
-    WindUI:Notify({Title="TKSH v35", Content="Foto aclarada + botones amarillo pastel", Duration=4})
-end)
+WindUI:Notify({Title="CHOCOFRZ🍰", Content="v35 corregido: sintaxis reparada", Duration=4})
