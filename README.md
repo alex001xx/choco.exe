@@ -26,11 +26,6 @@ HidePosEnabled, HidePosConn, HideParts = false, nil, {}
 AutoClickerEnabled, AutoClickerCPS = false, 10
 NoFallDamageEnabled, NoFallConn = false, nil
 AntiAFKConn = nil
-
--- [FIX] Declaraciones adelantadas para que el acento y la ventana se capturen bien en los cierres (closures)
-local Window = nil
-local ColorAccent = Color3.fromRGB(255, 235, 140)
-
 local Lighting = game:GetService("Lighting")
 local OriginalLight = {ClockTime=Lighting.ClockTime, Brightness=Lighting.Brightness, Ambient=Lighting.Ambient, OutdoorAmbient=Lighting.OutdoorAmbient, FogEnd=Lighting.FogEnd, GlobalShadows=Lighting.GlobalShadows, ExposureCompensation=Lighting.ExposureCompensation}
 local GameSettings = UserSettings().GameSettings
@@ -1135,8 +1130,8 @@ local function AS(fn)
     end
 end
 
--- 🎨 ACENTO: AMARILLO PASTEL ([FIX] asignación, no re-declaración)
-ColorAccent = Color3.fromRGB(255, 235, 140)
+-- 🎨 ACENTO: AMARILLO PASTEL
+local ColorAccent = Color3.fromRGB(255, 235, 140)
 local RefBordeCirculo, RefBordePerfil, RefTPBtn = nil, nil, nil
 local function AplicarColor(c)
     ColorAccent = c
@@ -1232,51 +1227,98 @@ end
 
 LoadConfig()
 
--- [FIX] comentario con DOS guiones (antes tenía uno solo y rompía la sintaxis)
--- Definir colores
-local AmarilloPastel = Color3.fromHex("#F9E076")
-local FondoOscuro = Color3.fromHex("#121212")
--- Reemplazar el tema oscuro con nuestros colores
-WindUI.Themes = WindUI.Themes or {}
-WindUI.Themes.Dark = WindUI.Themes.Dark or {}
--- Asignar colores a cada elemento
-WindUI.Themes.Dark.Primary = AmarilloPastel
-WindUI.Themes.Dark.Button = AmarilloPastel
-WindUI.Themes.Dark.Icon = AmarilloPastel
-WindUI.Themes.Dark.Slider = AmarilloPastel
-WindUI.Themes.Dark.Toggle = AmarilloPastel
-WindUI.Themes.Dark.Checkbox = AmarilloPastel
-WindUI.Themes.Dark.TabBackground = AmarilloPastel
-WindUI.Themes.Dark.TabBackgroundHover = AmarilloPastel
-WindUI.Themes.Dark.TabBackgroundActive = AmarilloPastel
-WindUI.Themes.Dark.TabIcon = AmarilloPastel
-WindUI.Themes.Dark.ElementBackground = AmarilloPastel
-WindUI.Themes.Dark.ElementBackgroundTransparency = 0.2
--- [FIX fondo claro] antes era FondoOscuro #121212 (casi negro) y opaqueaba la foto.
--- WindowBackground usa el campo "Background", así que con base crema la foto se ve clara.
-WindUI.Themes.Dark.Background = Color3.fromHex("#FFF3C4")
-WindUI.Themes.Dark.BackgroundTransparency = 0.35
-WindUI.Themes.Dark.WindowBackground = Color3.fromHex("#FFF3C4")
-WindUI.Themes.Dark.PanelBackground = Color3.fromHex("#FFFBF0")
-WindUI.Themes.Dark.PanelBackgroundTransparency = 0.72
-WindUI.Themes.Dark.Dialog = Color3.fromHex("#FFF3C4")
-
--- [FIX] FALTABA esta línea: crear la ventana. Antes había un `WindUI:SetTheme("Dark")` suelto
--- y luego los campos de la tabla sin constructor, lo cual es error de sintaxis.
-Window = WindUI:CreateWindow({
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+ -- 🌸 TEMA ROSADO TRANSPARENTE LEGIBLE
+ local PinkTheme = {
+     Primary = Color3.fromHex("#FF1493"),        -- Rosado neón fuerte
+     Secondary = Color3.fromHex("#FF69B4"),      -- Rosado medio
+     Accent = Color3.fromHex("#FF00FF"),          -- Magenta neón
+     Button = Color3.fromHex("#FF1E88"),          -- Rosado botón
+     Icon = Color3.fromHex("#FF69B4"),            -- Iconos
+     
+     -- LETRAS: ROSADO NEÓN BRILLANTE Y LEGIBLE
+     Text = Color3.fromHex("#FF71CE"),           -- Rosado neón claro ✨
+     Title = Color3.fromHex("#FF33CC"),          -- Títulos más brillantes
+     Desc = Color3.fromHex("#FF99DD"),           -- Descripciones suaves
+     
+     -- PESTAÑAS: ROSADO TRANSPARENTE
+     TabActive = Color3.fromHex("#FFC2E2"),       -- Pestaña activa (rosado claro)
+     TabInactive = Color3.fromHex("#FF99CC"),     -- Pestaña normal (rosado medio)
+     TabTextActive = Color3.fromHex("#FFFFFF"),   -- Texto blanco en pestaña activa
+     TabTextInactive = Color3.fromHex("#FF3399"), -- Texto rosado oscuro en pestaña normal
+     
+     -- Fondo y elementos
+     Background = Color3.fromHex("#2A0A1F"),      -- Fondo oscuro
+     Panel = Color3.fromHex("#3D1430"),           -- Paneles
+     White = Color3.fromHex("#FFE6F5"),
+     Black = Color3.fromHex("#1F0818"),
+ }
+ -- Definir el tema completo
+ WindUI.Themes = WindUI.Themes or {}
+ WindUI.Themes.PinkTransparent = {
+     Primary = PinkTheme.Primary,
+     White = PinkTheme.White,
+     Black = PinkTheme.Black,
+     Dialog = "Primary",
+     Background = PinkTheme.Background,
+     BackgroundTransparency = 0.3,
+     
+     -- Pestañas en ROSADO TRANSPARENTE ✅
+     TabBackground = PinkTheme.TabInactive,
+     TabBackgroundTransparency = 0.5,          -- Transparencia para ver el fondo
+     TabBackgroundHover = PinkTheme.TabInactive,
+     TabBackgroundHoverTransparency = 0.4,     -- Un poco más opaco al pasar el mouse
+     TabBackgroundActive = PinkTheme.TabActive,
+     TabBackgroundActiveTransparency = 0.3,     -- Activa más visible pero transparente
+     
+     TabText = PinkTheme.TabTextInactive,
+     TabTextTransparency = 0,
+     TabTextTransparencyActive = 0,
+     TabTitle = PinkTheme.Title,
+     TabIcon = PinkTheme.Icon,
+     TabIconTransparency = 0,
+     TabIconTransparencyActive = 0,
+     TabBorder = PinkTheme.Primary,
+     TabBorderTransparency = 0,
+     
+     -- Elementos
+     ElementBackground = PinkTheme.Button,
+     ElementBackgroundTransparency = 0.15,
+     ElementTitle = PinkTheme.Title,
+     ElementDesc = PinkTheme.Desc,
+     ElementIcon = PinkTheme.Icon,
+     
+     -- Botones y controles
+     Button = PinkTheme.Button,
+     Text = PinkTheme.Text,
+     Icon = PinkTheme.Icon,
+     Toggle = PinkTheme.Primary,
+     ToggleBar = Color3.fromHex("#FFC2E2"),
+     Checkbox = PinkTheme.Primary,
+     CheckboxIcon = Color3.fromHex("#FFFFFF"),
+     Slider = PinkTheme.Primary,
+     SliderThumb = Color3.fromHex("#FFFFFF"),
+     
+     -- Ventana
+     WindowBackground = "Background",
+     WindowShadow = "Black",
+     WindowTopbarTitle = "Title",
+     WindowTopbarAuthor = "Desc",
+     WindowTopbarIcon = "Icon",
+ }
+ -- Aplicar tema
+ WindUI:SetTheme("PinkTransparent")
     Title="TKSH🍰", Icon="sword", Author="CHOCOFRZ🍓", Folder="DENJI•ALEX",
     Size=UDim2.fromOffset(600,540), MinSize=Vector2.new(520,420), MaxSize=Vector2.new(850,680),
     Transparent=true, Theme="Dark", Resizable=true, SideBarWidth=160,
     Background = "rbxassetid://81943489858207",
-    BackgroundImageTransparency = 0.52, -- [FIX] término medio: foto ni muy tenue ni muy fuerte
+    BackgroundImageTransparency = 0.65, -- [v34] foto de fondo más clara / tenue
     BackgroundColor3 = Color3.fromRGB(255, 253, 240), -- tinte claro debajo de la foto
 
     HideSearchBar = true, Accent=Color3.fromRGB(255, 235, 140), -- [v34] acento amarillo pastel (botones, sliders, toggles)
     OpenButton={Title="CHOCOFRZ 🍓", Icon="sword", Enabled=true, Draggable=true, OnlyMobile=false, CornerRadius=UDim.new(1,0), StrokeThickness=2, StrokeColor=Color3.fromRGB(255, 235, 140), Scale=1},
 })
-pcall(function() WindUI:SetTheme("Dark") end)
 pcall(function() AplicarColor(ColorAccent) end) -- fuerza el acento en WindUI al iniciar
-pcall(function() if Window and Window.SetBackgroundImageTransparency then Window:SetBackgroundImageTransparency(0.52) end end)
 
 -- 1. PLAYER
 local PlayerTab = Window:Tab({Title="Player", Icon="user"})
@@ -2161,4 +2203,67 @@ end)
 pcall(function() Window:SelectTab(PlayerTab) end)
 pcall(function() Window:SelectTab(1) end)
 
-WindUI:Notify({Title="CHOCOFRZ🍰", Content="v35 corregido: sintaxis reparada", Duration=4})
+WindUI:Notify({Title="CHOCOFRZ🍰", Content="v34: Tema Amarillo Pastel + foto de fondo más clara", Duration=4})
+    -- Aclarar la foto de fondo y quitar el velo oscuro del tema Dark
+    local function AclararFondo()
+        pcall(function()
+            for _, d in ipairs(gui:GetDescendants()) do
+                -- La foto en sí: más transparente = se ve más clara y tenue
+                if d:IsA("ImageLabel") and d.Image and d.Image:find("81943489858207") then
+                    d.ImageTransparency = 0.82
+                end
+                -- El velo/recuadro oscuro que tapa la foto: cambiar a tono cálido más claro
+                if d:IsA("Frame") and not d:FindFirstAncestorWhichIsA("TextButton") then
+                    local tamX, tamY = d.AbsoluteSize.X, d.AbsoluteSize.Y
+                    if tamX > 280 and tamY > 180 and d.BackgroundTransparency < 0.95 then
+                        local c = d.BackgroundColor3
+                        if c.R < 0.42 and c.G < 0.42 and c.B < 0.42 then
+                            d.BackgroundColor3 = Color3.fromRGB(82, 66, 35)  -- cálido, menos oscuro
+                            d.BackgroundTransparency = 0.50
+                        end
+                    end
+                end
+            end
+        end)
+    end
+
+    local function RepintarTodo()
+        pcall(function()
+            for _, d in ipairs(gui:GetDescendants()) do
+                PintarBoton(d)
+                PintarKnob(d)
+            end
+        end)
+    end
+
+    AclararFondo()
+    RepintarTodo()
+
+    -- Arreglar el texto del cuadro de perfil (está blanco y sobre fondo claro no se lee)
+    pcall(function()
+        local box = gui:FindFirstChild("PerfilCuadro", true)
+        if box then
+            for _, lbl in ipairs(box:GetDescendants()) do
+                if lbl:IsA("TextLabel") then lbl.TextColor3 = ColorTextoClaro end
+            end
+        end
+    end)
+
+    -- Botones/círculos que aparezcan después (dropdowns, al cambiar de tab, etc.)
+    gui.DescendantAdded:Connect(function(d)
+        task.wait(0.08)
+        PintarBoton(d)
+        PintarKnob(d)
+    end)
+
+    -- Re-afirmar cada segundo por si WindUI repinta al cambiar de pestaña
+    while task.wait(1) do
+        if not gui or not gui.Parent then break end
+        RepintarTodo()
+    end
+end)
+
+-- [v35] Notificación de que el parche cargó
+pcall(function()
+    WindUI:Notify({Title="TKSH v35", Content="Foto aclarada + botones amarillo pastel", Duration=4})
+end)
