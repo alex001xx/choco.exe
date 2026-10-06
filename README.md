@@ -21,7 +21,7 @@ FallSpeedCap, SavedPosition, CoordsText, ClickTPConn, SpinConn = 200, nil, "", n
 AutoWalkEnabled, AutoWalkConn = false, nil
 TPWalkEnabled, TPWalkSpeed, TPWalkConn = false, 0.30, nil
 InvisibleEnabled = false
--- [v33] Invisible Ultra (Oculta Posición) — integrado a la pestaña Main
+-- [v34] Tema Amarillo Pastel + fondo más claro
 HidePosEnabled, HidePosConn, HideParts = false, nil, {}
 AutoClickerEnabled, AutoClickerCPS = false, 10
 NoFallDamageEnabled, NoFallConn = false, nil
@@ -243,7 +243,7 @@ local function SetFlashAttack(s)
     end
 end
 
--- 🛡️ FUNCIÓN SIT PROTECTOR (Escudo)
+-- 🛡️ FUNCIÓN SIT PROTECTOR (Escudo) — amarillo pastel
 local function GuardarEstadosOriginalesSit(Personaje)
     if not Personaje then return end
     local Hum = Personaje:FindFirstChildWhichIsA("Humanoid")
@@ -285,8 +285,8 @@ local function CrearSitGui()
     local Marco = Instance.new("Frame")
     Marco.Size = UDim2.new(0, 120, 0, 55)
     Marco.Position = UDim2.new(0.02, 0, 0.02, 0)
-    Marco.BackgroundColor3 = Color3.fromRGB(250, 235, 170)
-    Marco.BorderColor3 = Color3.fromRGB(245, 210, 90)
+    Marco.BackgroundColor3 = Color3.fromRGB(255, 245, 190)
+    Marco.BorderColor3 = Color3.fromRGB(240, 215, 110)
     Marco.BorderSizePixel = 2
     Marco.Active = true
     Marco.Draggable = true
@@ -295,8 +295,8 @@ local function CrearSitGui()
     local Boton = Instance.new("TextButton")
     Boton.Size = UDim2.new(0, 90, 0, 35)
     Boton.Position = UDim2.new(0.5, -45, 0.5, -17)
-    Boton.BackgroundColor3 = Color3.fromRGB(245, 210, 90)
-    Boton.TextColor3 = Color3.fromRGB(70, 60, 40)
+    Boton.BackgroundColor3 = Color3.fromRGB(250, 225, 130)
+    Boton.TextColor3 = Color3.fromRGB(90, 70, 20)
     Boton.Font = Enum.Font.GothamBold
     Boton.TextSize = 12
     Boton.Text = "OFF"
@@ -313,7 +313,7 @@ local function SetSitProtector(s)
 
     if s then
         SitGui.Boton.Text = "ON"
-        SitGui.Boton.BackgroundColor3 = Color3.fromRGB(170, 245, 180)
+        SitGui.Boton.BackgroundColor3 = Color3.fromRGB(200, 245, 170)
         GuardarEstadosOriginalesSit(LocalPlayer.Character)
 
         SitConexiones.Bucle = RunService.Heartbeat:Connect(function()
@@ -347,7 +347,7 @@ local function SetSitProtector(s)
     else
         if SitGui then
             SitGui.Boton.Text = "OFF"
-            SitGui.Boton.BackgroundColor3 = Color3.fromRGB(245, 210, 90)
+            SitGui.Boton.BackgroundColor3 = Color3.fromRGB(250, 225, 130)
         end
         if SitConexiones.Bucle then
             SitConexiones.Bucle:Disconnect()
@@ -551,7 +551,6 @@ end
 
 -- ============================================================
 -- 👻 INVISIBLE ULTRA (Oculta Posición) — integrado a Main [v33]
--- (antes era el botón flotante TK + tecla G del final del script)
 -- ============================================================
 local function CollectHideParts()
     HideParts = {}
@@ -592,7 +591,7 @@ local function SetHidePos(s)
     end
 end
 
--- Atajo de tecla G (igual que antes, pero ahora sincronizado con el toggle del menú)
+-- Atajo de tecla G
 UserInputService.InputBegan:Connect(function(input, gp)
     if gp then return end
     if input.KeyCode == Enum.KeyCode.G then
@@ -611,9 +610,7 @@ LocalPlayer.CharacterAdded:Connect(function()
 end)
 
 -- ============================================================
--- 🎈 BOTONES FLOTANTES (Invisible / TPWalk / Ataque Rápido) [v33.1]
--- Cada botón circular arrastrable enciende/apaga su función.
--- Se muestran/ocultan desde los toggles de la pestaña Main.
+-- 🎈 BOTONES FLOTANTES — ahora todos en tonos amarillo pastel
 -- ============================================================
 local BotonesFlotantes = {}
 local FlotCount = 0
@@ -623,7 +620,7 @@ local function CrearFlotante(id, texto, colorOn, getEstado, alternar)
     gui.Name = "Flotante_"..id
     gui.ResetOnSpawn = false
     gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    gui.Enabled = false -- oculto por defecto; se muestra con el toggle del menú
+    gui.Enabled = false
     local puesto = pcall(function()
         if gethui then gui.Parent = gethui() else gui.Parent = game:GetService("CoreGui") end
     end)
@@ -635,7 +632,7 @@ local function CrearFlotante(id, texto, colorOn, getEstado, alternar)
     btn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
     btn.Text = texto
     btn.Font = Enum.Font.GothamBold
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextColor3 = Color3.fromRGB(90, 70, 15)
     btn.TextSize = 13
     btn.BorderSizePixel = 0
     btn.Active = true
@@ -649,9 +646,10 @@ local function CrearFlotante(id, texto, colorOn, getEstado, alternar)
 
     local function Actualizar()
         local on = getEstado()
-        btn.BackgroundColor3 = on and colorOn or Color3.fromRGB(40, 40, 50)
+        btn.BackgroundColor3 = on and colorOn or Color3.fromRGB(255, 248, 215)
         btn.Text = on and (texto.." ✓") or texto
-        stroke.Color = on and Color3.fromRGB(255, 255, 255) or colorOn
+        btn.TextColor3 = Color3.fromRGB(90, 70, 15)
+        stroke.Color = on and Color3.fromRGB(200, 165, 40) or colorOn
     end
     Actualizar()
 
@@ -664,14 +662,13 @@ local function CrearFlotante(id, texto, colorOn, getEstado, alternar)
     BotonesFlotantes[id] = {Gui=gui, Actualizar=Actualizar}
 end
 
-CrearFlotante("Invisible", "INV", Color3.fromRGB(140, 90, 240),
+CrearFlotante("Invisible", "INV", Color3.fromRGB(255, 235, 140),
     function() return HidePosEnabled end, function(s) SetHidePos(s) end)
-CrearFlotante("TPWalk", "TPW", Color3.fromRGB(60, 190, 100),
+CrearFlotante("TPWalk", "TPW", Color3.fromRGB(255, 242, 165),
     function() return TPWalkEnabled end, function(s) SetTPWalk(s) end)
-CrearFlotante("Ataque", "ATA", Color3.fromRGB(230, 80, 80),
+CrearFlotante("Ataque", "ATA", Color3.fromRGB(250, 220, 110),
     function() return FlashAttackEnabled end, function(s) SetFlashAttack(s) end)
 
--- Sincroniza el color/texto de los botones flotantes con los toggles del menú
 task.spawn(function()
     while task.wait(0.3) do
         for _, f in pairs(BotonesFlotantes) do
@@ -681,7 +678,7 @@ task.spawn(function()
 end)
 
 -- ============================================================
--- 🛡️ NUEVOS ESCUDOS REALES (antes la pestaña no hacía NADA)
+-- 🛡️ NUEVOS ESCUDOS REALES
 -- ============================================================
 local function SetAntiKick(s)
     AntiKickEnabled = s
@@ -1039,9 +1036,7 @@ _G.TargetModule = {
 getgenv().TargetModule = _G.TargetModule
 
 -- ============================================================
--- 💾 AUTO-GUARDADO SILENCIOSO (en archivo — sobrevive a rejoins)
--- Sin botón de guardar ni notificación: se guarda solo al cambiar
--- cualquier ajuste, y se restaura SOLO al ejecutar el menú.
+-- 💾 AUTO-GUARDADO SILENCIOSO (v34: ThemeVersion=2 fuerza amarillo pastel)
 -- ============================================================
 local Saved = {}
 local ConfigFolder = "DENJI_ALEX"
@@ -1055,6 +1050,7 @@ end
 
 local function BuildConfig()
     return {
+        ThemeVersion = 2,
         FlashAttackEnabled = FlashAttackEnabled,
         FlashMultiplier = FlashMultiplier,
         TPWalkEnabled = TPWalkEnabled,
@@ -1117,7 +1113,6 @@ local function DoSave()
     end)
 end
 
--- Guarda como máximo cada 0.4s (para no spamear al mover sliders)
 local SaveScheduled = false
 local function SaveConfig()
     if SaveScheduled then return end
@@ -1135,7 +1130,8 @@ local function AS(fn)
     end
 end
 
-local ColorAccent = Color3.fromRGB(255, 160, 80)
+-- 🎨 ACENTO: AMARILLO PASTEL
+local ColorAccent = Color3.fromRGB(255, 235, 140)
 local RefBordeCirculo, RefBordePerfil, RefTPBtn = nil, nil, nil
 local function AplicarColor(c)
     ColorAccent = c
@@ -1154,6 +1150,10 @@ local function LoadConfig()
             if data then Saved = data end
         end
     end)
+    -- v34: si la config es vieja (sin ThemeVersion=2), ignorar el acento naranja guardado
+    if Saved.ThemeVersion ~= 2 then
+        Saved.AccentR, Saved.AccentG, Saved.AccentB = nil, nil, nil
+    end
     if Saved.ServidoresVisitados and type(Saved.ServidoresVisitados) == "table" then
         ServidoresVisitados = Saved.ServidoresVisitados
     end
@@ -1162,7 +1162,7 @@ local function LoadConfig()
     if Saved.FlySpeed then FlySpeed = Saved.FlySpeed end
     if Saved.FallSpeedCap then FallSpeedCap = Saved.FallSpeedCap end
     if Saved.AutoClickerCPS then AutoClickerCPS = Saved.AutoClickerCPS end
-    if Saved.AccentR then ColorAccent = Color3.fromRGB(Saved.AccentR, Saved.AccentG or 160, Saved.AccentB or 80) end
+    if Saved.AccentR then ColorAccent = Color3.fromRGB(Saved.AccentR, Saved.AccentG or 235, Saved.AccentB or 140) end
 end
 
 local function AplicarConfiguracion()
@@ -1232,11 +1232,13 @@ local Window = WindUI:CreateWindow({
     Size=UDim2.fromOffset(600,540), MinSize=Vector2.new(520,420), MaxSize=Vector2.new(850,680),
     Transparent=true, Theme="Dark", Resizable=true, SideBarWidth=160,
     Background = "rbxassetid://81943489858207",
-    BackgroundImageTransparency = 0.35,
-    
-    HideSearchBar = true, Accent=Color3.fromRGB(255,255,255),
-    OpenButton={Title="CHOCOFRZ 🍓", Icon="sword", Enabled=true, Draggable=true, OnlyMobile=false, CornerRadius=UDim.new(1,0), StrokeThickness=2, StrokeColor=Color3.fromRGB(255,255,255), Scale=1},
+    BackgroundImageTransparency = 0.65, -- [v34] foto de fondo más clara / tenue
+    BackgroundColor3 = Color3.fromRGB(255, 253, 240), -- tinte claro debajo de la foto
+
+    HideSearchBar = true, Accent=Color3.fromRGB(255, 235, 140), -- [v34] acento amarillo pastel (botones, sliders, toggles)
+    OpenButton={Title="CHOCOFRZ 🍓", Icon="sword", Enabled=true, Draggable=true, OnlyMobile=false, CornerRadius=UDim.new(1,0), StrokeThickness=2, StrokeColor=Color3.fromRGB(255, 235, 140), Scale=1},
 })
+pcall(function() AplicarColor(ColorAccent) end) -- fuerza el acento en WindUI al iniciar
 
 -- 1. PLAYER
 local PlayerTab = Window:Tab({Title="Player", Icon="user"})
@@ -1282,13 +1284,11 @@ MainRow3:Toggle({Title="Sin Fricción", Def=Get("NoFrictionEnabled", false), Cal
 MainRow3:Space({Size=8})
 MainRow3:Toggle({Title="Sin Gravedad", Def=false, Callback=AS(function(s) if Humanoid then Humanoid.GravityScale=s and 0 or 1 end end)})
 MainTab:Space({Size=8})
--- [v33] Ahora hay DOS invisibles en la misma fila: el local (ya existía) + el Ultra (oculta posición)
 local MainRow4 = MainTab:Group({})
 MainRow4:Toggle({Title="Invisible (Local)", Def=Get("InvisibleEnabled", false), Callback=AS(function(s) InvisibleEnabled=s; if Character then for _,v in pairs(Character:GetDescendants()) do if v:IsA("BasePart") then v.LocalTransparencyModifier=s and 1 or 0 end end end end)})
 MainRow4:Space({Size=8})
 MainRow4:Toggle({Title="Invisible Ultra (Oculta Posición) [G]", Def=Get("HidePosEnabled", false), Callback=AS(SetHidePos)})
 MainTab:Space({Size=12})
--- [v33.1] Mostrar/ocultar los botones flotantes (cada uno enciende/apaga su función)
 MainTab:Section({Title="🎈 Botones Flotantes (tocá para prender/apagar)", TextSize=18}); MainTab:Space({Size=6})
 local FlotSec = MainTab:Section({Title="", Box=true, BoxBorder=true, Opened=true})
 FlotSec:Toggle({Title="Mostrar Botón: Invisible Ultra", Def=false, Callback=function(s) if BotonesFlotantes.Invisible then BotonesFlotantes.Invisible.Gui.Enabled = s end end})
@@ -1336,7 +1336,7 @@ ExtScripts:Button({Title="Hitbox Girls", Desc="Ejecutar script", Icon="play", Ju
     end)
 end})
 
--- 3. GAME (MOVIDA AQUÍ, antes estaba después de Target)
+-- 3. GAME
 local GameTab = Window:Tab({Title="Game", Icon="gamepad-2"})
 GameTab:Section({Title="Funciones Universales", TextSize=20}); GameTab:Space({Size=6})
 
@@ -1410,7 +1410,7 @@ GScr:Button({Title="Dex Explorer", Desc="Ejecutar", Icon="play", Justify="Left",
 end})
 GameTab:Space({Size=12})
 
--- 4. TARGET (2 toggles por línea)
+-- 4. TARGET
 local TargetTab = Window:Tab({Title="Target", Icon="crosshair"})
 TargetTab:Section({Title="🎯 Seleccionar Objetivo", TextSize=20}); TargetTab:Space({Size=6})
 local TargetSel = TargetTab:Section({Title="", Box=true, BoxBorder=true, Opened=true})
@@ -1455,31 +1455,26 @@ TargetTab:Space({Size=10})
 
 TargetTab:Section({Title="🔄 Toggles de Objetivo (2 por línea)", TextSize=18}); TargetTab:Space({Size=6})
 local TargetTog = TargetTab:Section({Title="", Box=true, BoxBorder=true, Opened=true})
--- Fila 1: Fling + View
 local TT1 = TargetTog:Group({})
 TT1:Toggle({Title="Lanzar (Fling)", Def=false, Callback=AS(function(s) TargetToggle("Fling", s) end)})
 TT1:Space({Size=8})
 TT1:Toggle({Title="Ver (Cámara)", Def=false, Callback=AS(function(s) TargetToggle("View", s) end)})
 TargetTog:Space({Size=6})
--- Fila 2: Focus + Bang
 local TT2 = TargetTog:Group({})
 TT2:Toggle({Title="Enfocar (Focus)", Def=false, Callback=AS(function(s) TargetToggle("Focus", s) end)})
 TT2:Space({Size=8})
 TT2:Toggle({Title="Bang / Pegar", Def=false, Callback=AS(function(s) TargetToggle("Bang", s) end)})
 TargetTog:Space({Size=6})
--- Fila 3: HeadSit + Stand
 local TT3 = TargetTog:Group({})
 TT3:Toggle({Title="Sentar en Cabeza", Def=false, Callback=AS(function(s) TargetToggle("HeadSit", s) end)})
 TT3:Space({Size=8})
 TT3:Toggle({Title="Pararse Junto (Stand)", Def=false, Callback=AS(function(s) TargetToggle("Stand", s) end)})
 TargetTog:Space({Size=6})
--- Fila 4: Backpack + Doggy
 local TT4 = TargetTog:Group({})
 TT4:Toggle({Title="Mochila (Backpack)", Def=false, Callback=AS(function(s) TargetToggle("Backpack", s) end)})
 TT4:Space({Size=8})
 TT4:Toggle({Title="Posición Baja (Doggy)", Def=false, Callback=AS(function(s) TargetToggle("Doggy", s) end)})
 TargetTog:Space({Size=6})
--- Fila 5: Drag (solo)
 local TT5 = TargetTog:Group({})
 TT5:Toggle({Title="Arrastrar (Drag)", Def=false, Callback=AS(function(s) TargetToggle("Drag", s) end)})
 TargetTab:Space({Size=10})
@@ -1518,17 +1513,16 @@ TAR2:Space({Size=8})
 TAR2:Button({Title="Limpiar Objetivo", Icon="x", Justify="Center", Callback=function() TargetSelect(nil) end})
 TargetTab:Space({Size=12})
 
--- 5. RJ=New.SV (Private Server Finder — lista en ventana independiente)
+-- 5. RJ=New.SV — ventana de servidores en AMARILLO PASTEL
 local RJTab = Window:Tab({Title="RJ=New.SV", Icon="globe"})
 
--- ██ LÓGICA (idéntica, sin cambios) ██
 local AutoOn = false
 local AutoCoroutine = nil
 local ServerList = {}
 ServidoresVisitados = ServidoresVisitados or {}
-local RJLimit = 1 -- reemplaza a LimitBox.Text
+local RJLimit = 1
 local RJStatus, RJCounter = nil, nil
-local ServerListGui = nil -- ventana independiente de la lista
+local ServerListGui = nil
 
 local function Fetch()
     local Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Asc&limit=100", game.PlaceId)
@@ -1591,7 +1585,7 @@ local function SetAutoHop(on)
     end
 end
 
--- ██ VENTANA INDEPENDIENTE: LISTA DE SERVIDORES (pastel naranja transparente) ██
+-- ██ VENTANA INDEPENDIENTE: LISTA DE SERVIDORES (amarillo pastel) ██
 local function CerrarListaServidores()
     if ServerListGui then
         pcall(function() ServerListGui:Destroy() end)
@@ -1623,8 +1617,8 @@ local function AbrirListaServidores()
     local Main = Instance.new("Frame")
     Main.Parent = ScreenGui
     Main.Name = "Main"
-    Main.BackgroundColor3 = Color3.fromRGB(255, 195, 145) -- pastel naranja
-    Main.BackgroundTransparency = 0.30 -- transparente
+    Main.BackgroundColor3 = Color3.fromRGB(255, 245, 190) -- amarillo pastel
+    Main.BackgroundTransparency = 0.25
     Main.BorderSizePixel = 0
     Main.Position = UDim2.new(0.5, -150, 0.5, -200)
     Main.Size = UDim2.new(0, 300, 0, 400)
@@ -1633,7 +1627,7 @@ local function AbrirListaServidores()
     Main.ClipsDescendants = true
     Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 10)
     local Stroke = Instance.new("UIStroke", Main)
-    Stroke.Color = Color3.fromRGB(235, 160, 100)
+    Stroke.Color = Color3.fromRGB(230, 200, 100)
     Stroke.Thickness = 1.5
     Stroke.Transparency = 0.2
 
@@ -1644,31 +1638,31 @@ local function AbrirListaServidores()
     Title.BackgroundTransparency = 1
     Title.Font = Enum.Font.GothamBold
     Title.Text = "Servidores Disponibles"
-    Title.TextColor3 = Color3.fromRGB(90, 50, 20)
+    Title.TextColor3 = Color3.fromRGB(110, 85, 15)
     Title.TextSize = 13
     Title.TextXAlignment = Enum.TextXAlignment.Left
 
     local Refresh = Instance.new("TextButton")
     Refresh.Parent = Main
-    Refresh.BackgroundColor3 = Color3.fromRGB(240, 160, 110)
-    Refresh.BackgroundTransparency = 0.15
+    Refresh.BackgroundColor3 = Color3.fromRGB(250, 225, 130)
+    Refresh.BackgroundTransparency = 0.10
     Refresh.Position = UDim2.new(1, -100, 0, 8)
     Refresh.Size = UDim2.new(0, 64, 0, 22)
     Refresh.Font = Enum.Font.GothamBold
     Refresh.Text = "Recargar"
-    Refresh.TextColor3 = Color3.fromRGB(90, 50, 20)
+    Refresh.TextColor3 = Color3.fromRGB(110, 85, 15)
     Refresh.TextSize = 9
     Instance.new("UICorner", Refresh).CornerRadius = UDim.new(0, 6)
 
     local Close = Instance.new("TextButton")
     Close.Parent = Main
-    Close.BackgroundColor3 = Color3.fromRGB(240, 140, 100)
-    Close.BackgroundTransparency = 0.10
+    Close.BackgroundColor3 = Color3.fromRGB(245, 210, 105)
+    Close.BackgroundTransparency = 0.05
     Close.Position = UDim2.new(1, -30, 0, 8)
     Close.Size = UDim2.new(0, 22, 0, 22)
     Close.Font = Enum.Font.GothamBold
     Close.Text = "X"
-    Close.TextColor3 = Color3.fromRGB(90, 40, 10)
+    Close.TextColor3 = Color3.fromRGB(110, 80, 10)
     Close.TextSize = 12
     Instance.new("UICorner", Close).CornerRadius = UDim.new(0, 6)
     Close.MouseButton1Click:Connect(CerrarListaServidores)
@@ -1677,11 +1671,11 @@ local function AbrirListaServidores()
     List.Parent = Main
     List.Position = UDim2.new(0, 10, 0, 38)
     List.Size = UDim2.new(1, -20, 1, -90)
-    List.BackgroundColor3 = Color3.fromRGB(255, 215, 175)
-    List.BackgroundTransparency = 0.35
+    List.BackgroundColor3 = Color3.fromRGB(255, 248, 210)
+    List.BackgroundTransparency = 0.30
     List.BorderSizePixel = 0
     List.ScrollBarThickness = 4
-    List.ScrollBarImageColor3 = Color3.fromRGB(230, 140, 80)
+    List.ScrollBarImageColor3 = Color3.fromRGB(215, 185, 80)
     List.CanvasSize = UDim2.new(0, 0, 0, 0)
     List.AutomaticCanvasSize = Enum.AutomaticSize.Y
     Instance.new("UICorner", List).CornerRadius = UDim.new(0, 8)
@@ -1699,7 +1693,6 @@ local function AbrirListaServidores()
         btn.MouseLeave:Connect(function() if not btn:GetAttribute("Selected") then TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = normal}):Play() end end)
     end
 
-    -- Boton de TP al servidor seleccionado (barra inferior)
     local TPBtn = Instance.new("TextButton")
     TPBtn.Parent = Main
     TPBtn.Position = UDim2.new(0, 10, 1, -44)
@@ -1709,10 +1702,9 @@ local function AbrirListaServidores()
     TPBtn.BorderSizePixel = 0
     TPBtn.Font = Enum.Font.GothamBold
     TPBtn.Text = "TP al Servidor Seleccionado"
-    TPBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TPBtn.TextColor3 = Color3.fromRGB(90, 70, 15)
     TPBtn.TextSize = 12
     Instance.new("UICorner", TPBtn).CornerRadius = UDim.new(0, 8)
-    Hover(TPBtn, ColorAccent, ColorAccent)
     RefTPBtn = TPBtn
     TPBtn.MouseButton1Click:Connect(function()
         if not SelectedServer then
@@ -1735,7 +1727,7 @@ local function AbrirListaServidores()
         Loading.BackgroundTransparency = 1
         Loading.Font = Enum.Font.Gotham
         Loading.Text = "Cargando servidores..."
-        Loading.TextColor3 = Color3.fromRGB(90, 50, 20)
+        Loading.TextColor3 = Color3.fromRGB(110, 85, 15)
         Loading.TextSize = 11
         task.spawn(function()
             local url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Asc&limit=100", game.PlaceId)
@@ -1755,42 +1747,40 @@ local function AbrirListaServidores()
                     local btn = Instance.new("TextButton")
                     btn.Parent = List
                     btn.Size = UDim2.new(1, -8, 0, 30)
-                    btn.BackgroundTransparency = 0.15
+                    btn.BackgroundTransparency = 0.10
                     btn.BorderSizePixel = 0
                     btn.Font = Enum.Font.Gotham
                     btn.TextSize = 11
                     btn.TextXAlignment = Enum.TextXAlignment.Left
                     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
                     if esActual then
-                        -- Servidor en el que estas AHORA: amarillo intenso
-                        btn.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
+                        btn.BackgroundColor3 = Color3.fromRGB(255, 225, 90)
                         btn.BackgroundTransparency = 0
-                        btn.TextColor3 = Color3.fromRGB(90, 60, 0)
+                        btn.TextColor3 = Color3.fromRGB(110, 85, 10)
                         btn.Text = string.format("  (AQUI ESTAS) %d/%d jugadores  •  Ping: %dms", srv.playing or 0, srv.maxPlayers or 0, srv.ping or 0)
                     else
                         local visitado = ServidoresVisitados[tostring(srv.id)]
-                        local baseColor = visitado and Color3.fromRGB(100, 180, 255) or Color3.fromRGB(255, 225, 190)
-                        local overColor = visitado and Color3.fromRGB(70, 150, 230) or Color3.fromRGB(255, 190, 140)
-                        local textoColor = visitado and Color3.fromRGB(10, 35, 70) or Color3.fromRGB(80, 45, 15)
+                        local baseColor = visitado and Color3.fromRGB(255, 228, 150) or Color3.fromRGB(255, 247, 200)
+                        local overColor = visitado and Color3.fromRGB(250, 215, 120) or Color3.fromRGB(250, 232, 155)
+                        local textoColor = Color3.fromRGB(110, 85, 15)
                         local prefijo = visitado and "  (visitado) " or "  "
                         btn.BackgroundColor3 = baseColor
                         btn.TextColor3 = textoColor
                         btn.Text = string.format(prefijo.."%d/%d jugadores  •  Ping: %dms", srv.playing or 0, srv.maxPlayers or 0, srv.ping or 0)
                         Hover(btn, baseColor, overColor)
                         btn.MouseButton1Click:Connect(function()
-                            -- quitar resaltado al servidor anterior
                             if SelectedBtn then
                                 SelectedBtn:SetAttribute("Selected", false)
-                                SelectedBtn.BackgroundColor3 = Color3.fromRGB(255, 225, 190)
-                                SelectedBtn.BackgroundTransparency = 0.15
-                                SelectedBtn.TextColor3 = Color3.fromRGB(80, 45, 15)
+                                SelectedBtn.BackgroundColor3 = Color3.fromRGB(255, 247, 200)
+                                SelectedBtn.BackgroundTransparency = 0.10
+                                SelectedBtn.TextColor3 = Color3.fromRGB(110, 85, 15)
                             end
                             SelectedServer = {Id=tostring(srv.id), Players=srv.playing or 0, Max=srv.maxPlayers or 0, Ping=srv.ping or 0}
                             SelectedBtn = btn
                             btn:SetAttribute("Selected", true)
-                            btn.BackgroundColor3 = Color3.fromRGB(255, 110, 30) -- naranja intenso (seleccionado)
+                            btn.BackgroundColor3 = Color3.fromRGB(245, 205, 65) -- amarillo más vivo (seleccionado)
                             btn.BackgroundTransparency = 0
-                            btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                            btn.TextColor3 = Color3.fromRGB(90, 70, 10)
                             if TPBtn then TPBtn.Text = "TP: " .. SelectedServer.Players .. "/" .. SelectedServer.Max .. " jugadores" end
                         end)
                     end
@@ -1800,8 +1790,8 @@ local function AbrirListaServidores()
     end
 
     Refresh.MouseButton1Click:Connect(LoadServers)
-    Hover(Refresh, Color3.fromRGB(240, 160, 110), Color3.fromRGB(255, 180, 120))
-    Hover(Close, Color3.fromRGB(240, 140, 100), Color3.fromRGB(255, 100, 80))
+    Hover(Refresh, Color3.fromRGB(250, 225, 130), Color3.fromRGB(255, 235, 150))
+    Hover(Close, Color3.fromRGB(245, 210, 105), Color3.fromRGB(255, 180, 90))
     LoadServers()
 end
 
@@ -1810,7 +1800,6 @@ local function ToggleListaServidores()
     else AbrirListaServidores() end
 end
 
--- ██ UI DE LA PESTAÑA (sin lista embebida — solo botón abrir/cerrar) ██
 RJTab:Section({Title="RJ = New Server", TextSize=20}); RJTab:Space({Size=6})
 RJStatus = RJTab:Paragraph({Title="Estado", Desc="Listo", Image="info", ImageSize=14})
 RJTab:Space({Size=4})
@@ -1831,7 +1820,6 @@ RJTab:Space({Size=8})
 RJTab:Button({Title="Abrir / Cerrar Lista de Servidores", Icon="globe", Justify="Center", Callback=ToggleListaServidores})
 RJTab:Space({Size=12})
 
--- Contador en tiempo real
 task.spawn(function()
     while task.wait(1) do
         if RJCounter and RJCounter.SetDesc then
@@ -1840,7 +1828,7 @@ task.spawn(function()
     end
 end)
 
--- 6. ESCUDOS (ARREGLADO — AHORA SÍ FUNCIONAN)
+-- 6. ESCUDOS
 local EscudosTab = Window:Tab({Title="Escudos", Icon="shield"})
 EscudosTab:Section({Title="🛡️ Protección y Defensas (reales)", TextSize=20}); EscudosTab:Space({Size=6})
 EscudosTab:Paragraph({Title="Nota", Desc="Anti-Kick solo bloquea kicks de scripts locales. Un kick del servidor no se puede bloquear del lado del cliente.", Image="info", ImageSize=14})
@@ -1868,7 +1856,6 @@ shieldPair("God Mode (Local)", function(s) GodModeEnabled = s end, Get("GodModeE
 shieldPair("Anti-Report (Oculta UI)", SetAntiReport, Get("AntiReportEnabled", false),
            "No Fall Damage", SetNoFallDamage, Get("NoFallDamageEnabled", false))
 
--- 🎙️ ANTI-VC ULTRA (toggle integrado directamente en Escudos)
 local GAntiVC = EscudosTab:Group({})
 GAntiVC:Toggle({Title="Anti-VC Ultra", Desc="Spam reconexion de voz (anti-VC agresivo)", Def=Get("AntiVCEnabled", false), Callback=AS(SetAntiVC)})
 EscudosTab:Space({Size=8})
@@ -2044,13 +2031,12 @@ pcall(function()
 end)
 
 AplicarConfiguracion()
--- Reintento 1.5s despues: por si WindUI o el personaje aun no estaban listos del todo
 task.spawn(function() task.wait(1.5); pcall(AplicarConfiguracion) end)
 
--- === CUADRO DE PERFIL: foto 100x100 a la DERECHA, nombre + ID en lista a la IZQUIERDA ===
+-- === CUADRO DE PERFIL: foto 100x100 a la DERECHA, nombre + ID a la IZQUIERDA ===
 task.spawn(function()
     pcall(function()
-        task.wait(0.6) -- esperar a que WindUI termine de construir la GUI
+        task.wait(0.6)
         if not PlayerTab then return end
         local Contenedor = nil
         pcall(function() Contenedor = PlayerTab.UIElements and PlayerTab.UIElements.ContainerFrame end)
@@ -2069,7 +2055,6 @@ task.spawn(function()
         Box.BorderSizePixel = 0
         Box.Active = false
         Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 10)
-        -- Cuadro BLANCO TRANSPARENTE (igual que los demas: Rendimiento, etc.)
         Box.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         Box.BackgroundTransparency = 0.86
         local BordeBox = Instance.new("UIStroke")
@@ -2079,12 +2064,11 @@ task.spawn(function()
         BordeBox.Transparency = 0.35
         RefBordePerfil = BordeBox
 
-        -- Foto de perfil (tamano ORIGINAL 100x100) dentro del cuadro, lado derecho
         local Circulo = Instance.new("Frame")
         Circulo.Name = "CirculoPerfil"
         Circulo.Parent = Box
-        Circulo.BackgroundColor3 = Color3.fromRGB(255, 210, 150) -- naranja pastel
-        Circulo.BackgroundTransparency = 1 -- fondo transparente (igual que el menú)
+        Circulo.BackgroundColor3 = Color3.fromRGB(255, 240, 170) -- amarillo pastel
+        Circulo.BackgroundTransparency = 1
         Circulo.Position = UDim2.new(1, -108, 0.5, -50)
         Circulo.Size = UDim2.new(0, 100, 0, 100)
         Circulo.ZIndex = 51
@@ -2113,10 +2097,9 @@ task.spawn(function()
             )
         end)
         if not Cargar then
-            Foto.Image = "rbxassetid://6026588573" -- Imagen de respaldo
+            Foto.Image = "rbxassetid://6026588573"
         end
 
-        -- Nombre + ID en forma de lista, lado izquierdo del cuadro
         local function HacerTexto(y, texto, tamano, bold, color)
             local lbl = Instance.new("TextLabel")
             lbl.Parent = Box
@@ -2140,8 +2123,4 @@ end)
 pcall(function() Window:SelectTab(PlayerTab) end)
 pcall(function() Window:SelectTab(1) end)
 
-WindUI:Notify({Title="TOKI🇯🇵", Content="v33: Invisible Ultra integrado en pestaña Main (toggle + tecla G)", Duration=4})
-
--- [v33] La función "Invisible Ultra" (antes el botón flotante TK del final) ya está
--- integrada como toggle en la pestaña Main y con atajo de tecla G. Se eliminó el
--- botón flotante independiente y el bloque _G.a para evitar duplicados.
+WindUI:Notify({Title="CHOCOFRZ🍰", Content="v34: Tema Amarillo Pastel + foto de fondo más clara", Duration=4})
