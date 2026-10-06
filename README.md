@@ -1255,10 +1255,10 @@ WindUI.Themes.Dark.ElementBackgroundTransparency = 0.2
 -- [FIX fondo claro] antes era FondoOscuro #121212 (casi negro) y opaqueaba la foto.
 -- WindowBackground usa el campo "Background", así que con base crema la foto se ve clara.
 WindUI.Themes.Dark.Background = Color3.fromHex("#FFF3C4")
-WindUI.Themes.Dark.BackgroundTransparency = 0.5
+WindUI.Themes.Dark.BackgroundTransparency = 0.35
 WindUI.Themes.Dark.WindowBackground = Color3.fromHex("#FFF3C4")
 WindUI.Themes.Dark.PanelBackground = Color3.fromHex("#FFFBF0")
-WindUI.Themes.Dark.PanelBackgroundTransparency = 0.85
+WindUI.Themes.Dark.PanelBackgroundTransparency = 0.72
 WindUI.Themes.Dark.Dialog = Color3.fromHex("#FFF3C4")
 
 -- [FIX] FALTABA esta línea: crear la ventana. Antes había un `WindUI:SetTheme("Dark")` suelto
@@ -1268,7 +1268,7 @@ Window = WindUI:CreateWindow({
     Size=UDim2.fromOffset(600,540), MinSize=Vector2.new(520,420), MaxSize=Vector2.new(850,680),
     Transparent=true, Theme="Dark", Resizable=true, SideBarWidth=160,
     Background = "rbxassetid://81943489858207",
-    BackgroundImageTransparency = 0.40, -- [FIX] foto más visible (antes 0.65 se veía muy tenue)
+    BackgroundImageTransparency = 0.52, -- [FIX] término medio: foto ni muy tenue ni muy fuerte
     BackgroundColor3 = Color3.fromRGB(255, 253, 240), -- tinte claro debajo de la foto
 
     HideSearchBar = true, Accent=Color3.fromRGB(255, 235, 140), -- [v34] acento amarillo pastel (botones, sliders, toggles)
@@ -1276,7 +1276,7 @@ Window = WindUI:CreateWindow({
 })
 pcall(function() WindUI:SetTheme("Dark") end)
 pcall(function() AplicarColor(ColorAccent) end) -- fuerza el acento en WindUI al iniciar
-pcall(function() if Window and Window.SetBackgroundImageTransparency then Window:SetBackgroundImageTransparency(0.40) end end)
+pcall(function() if Window and Window.SetBackgroundImageTransparency then Window:SetBackgroundImageTransparency(0.52) end end)
 
 -- 1. PLAYER
 local PlayerTab = Window:Tab({Title="Player", Icon="user"})
