@@ -2124,3 +2124,136 @@ pcall(function() Window:SelectTab(PlayerTab) end)
 pcall(function() Window:SelectTab(1) end)
 
 WindUI:Notify({Title="CHOCOFRZ🍰", Content="v34: Tema Amarillo Pastel + foto de fondo más clara", Duration=4})
+-- ============================================================
+-- [v35] PARCHE FINAL: Foto de fondo más clara + botones amarillo pastel
+-- Pega TODO este código al FINAL de tu script (después de la última línea).
+-- No toca nada de lo que ya funciona; si algo no encuentra, lo ignora.
+-- ============================================================
+task.spawn(function()
+    task.wait(1.2)
+
+    local ColorBtn        = Color3.fromRGB(255, 240, 165)  -- botón normal (amarillo pastel)
+    local ColorBtnHover   = Color3.fromRGB(255, 249, 210)  -- botón al pasar el mouse (más claro)
+    local ColorTextoBoton = Color3.fromRGB(92, 70, 15)     -- texto del botón (marrón oscuro, contraste)
+    local ColorKnob       = Color3.fromRGB(255, 230, 120)  -- círculos de toggles/sliders
+    local ColorTextoClaro = Color3.fromRGB(85, 62, 18)     -- para el cuadro de perfil
+
+    local function EsBlanco(c)
+        return c and c.R >= 0.75 and c.G >= 0.75 and c.B >= 0.75
+    end
+
+    -- Buscar el ScreenGui principal de WindUI (el que tiene el botón "CHOCOFRZ")
+    local function BuscarGuiEn(contenedor)
+        if not contenedor then return nil end
+        local ok, desc = pcall(function() return contenedor:GetDescendants() end)
+        if not ok or not desc then return nil end
+        for _, d in ipairs(desc) do
+            if d:IsA("TextButton") and d.Text and d.Text:find("CHOCOFRZ") then
+                return d:FindFirstAncestorWhichIsA("ScreenGui")
+            end
+        end
+        return nil
+    end
+
+    local gui = nil
+    pcall(function() if gethui then gui = BuscarGuiEn(gethui()) end end)
+    if not gui then gui = BuscarGuiEn(game:GetService("CoreGui")) end
+    if not gui then gui = BuscarGuiEn(game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")) end
+    if not gui then return end
+
+    -- Pintar botones blancos -> amarillo pastel
+    local function PintarBoton(btn)
+        if not btn then return end
+        if not (btn:IsA("TextButton") or btn:IsA("ImageButton")) then return end
+        if btn.BackgroundTransparency and btn.BackgroundTransparency > 0.9 then return end
+        if not EsBlanco(btn.BackgroundColor3) then return end
+        btn.BackgroundColor3 = ColorBtn
+        if btn:IsA("TextButton") then btn.TextColor3 = ColorTextoBoton end
+        for _, h in ipairs(btn:GetChildren()) do
+            if h:IsA("TextLabel") then h.TextColor3 = ColorTextoBoton end
+        end
+        btn.MouseEnter:Connect(function()
+            if btn.BackgroundColor3 == ColorBtn then btn.BackgroundColor3 = ColorBtnHover end
+        end)
+        btn.MouseLeave:Connect(function()
+            if btn.BackgroundColor3 == ColorBtnHover then btn.BackgroundColor3 = ColorBtn end
+        end)
+    end
+
+    -- Pintar círculos blancos (knobs de toggles y sliders) -> amarillo pastel
+    local function PintarKnob(k)
+        if not k or not k:IsA("Frame") then return end
+        if k.BackgroundTransparency and k.BackgroundTransparency > 0.9 then return end
+        if not EsBlanco(k.BackgroundColor3) then return end
+        local corner = k:FindFirstChildOfClass("UICorner")
+        if corner and corner.CornerRadius.Scale == 1 then
+            local tam = k.AbsoluteSize.X
+            if tam > 0 and tam <= 32 then
+                k.BackgroundColor3 = ColorKnob
+            end
+        end
+    end
+
+    -- Aclarar la foto de fondo y quitar el velo oscuro del tema Dark
+    local function AclararFondo()
+        pcall(function()
+            for _, d in ipairs(gui:GetDescendants()) do
+                -- La foto en sí: más transparente = se ve más clara y tenue
+                if d:IsA("ImageLabel") and d.Image and d.Image:find("81943489858207") then
+                    d.ImageTransparency = 0.82
+                end
+                -- El velo/recuadro oscuro que tapa la foto: cambiar a tono cálido más claro
+                if d:IsA("Frame") and not d:FindFirstAncestorWhichIsA("TextButton") then
+                    local tamX, tamY = d.AbsoluteSize.X, d.AbsoluteSize.Y
+                    if tamX > 280 and tamY > 180 and d.BackgroundTransparency < 0.95 then
+                        local c = d.BackgroundColor3
+                        if c.R < 0.42 and c.G < 0.42 and c.B < 0.42 then
+                            d.BackgroundColor3 = Color3.fromRGB(82, 66, 35)  -- cálido, menos oscuro
+                            d.BackgroundTransparency = 0.50
+                        end
+                    end
+                end
+            end
+        end)
+    end
+
+    local function RepintarTodo()
+        pcall(function()
+            for _, d in ipairs(gui:GetDescendants()) do
+                PintarBoton(d)
+                PintarKnob(d)
+            end
+        end)
+    end
+
+    AclararFondo()
+    RepintarTodo()
+
+    -- Arreglar el texto del cuadro de perfil (está blanco y sobre fondo claro no se lee)
+    pcall(function()
+        local box = gui:FindFirstChild("PerfilCuadro", true)
+        if box then
+            for _, lbl in ipairs(box:GetDescendants()) do
+                if lbl:IsA("TextLabel") then lbl.TextColor3 = ColorTextoClaro end
+            end
+        end
+    end)
+
+    -- Botones/círculos que aparezcan después (dropdowns, al cambiar de tab, etc.)
+    gui.DescendantAdded:Connect(function(d)
+        task.wait(0.08)
+        PintarBoton(d)
+        PintarKnob(d)
+    end)
+
+    -- Re-afirmar cada segundo por si WindUI repinta al cambiar de pestaña
+    while task.wait(1) do
+        if not gui or not gui.Parent then break end
+        RepintarTodo()
+    end
+end)
+
+-- [v35] Notificación de que el parche cargó
+pcall(function()
+    WindUI:Notify({Title="TKSH v35", Content="Foto aclarada + botones amarillo pastel", Duration=4})
+end)
