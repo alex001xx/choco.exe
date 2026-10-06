@@ -1,8 +1,3 @@
--- ==============================================================
--- TKSH v35 — Script completo corregido (final arreglado)
--- Tema: Amarillo Pastel | UI: WindUI
--- ==============================================================
-
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
