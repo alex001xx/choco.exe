@@ -1281,14 +1281,14 @@ WindUI.Themes.PinkTransparent = {
 pcall(function() WindUI:SetTheme("PinkTransparent") end)
 
 Window = WindUI:CreateWindow({
-    Title="TKSH", Icon="sword", Author="CHOCOFRZ", Folder="DENJI-ALEX",
+    Title="TKSH🍓", Icon="sword", Author="CHOCOFRZ🍰", Folder="DENJI-ALEX",
     Size=UDim2.fromOffset(600,540), MinSize=Vector2.new(520,420), MaxSize=Vector2.new(850,680),
     Transparent=true, Theme="Dark", Resizable=true, SideBarWidth=160,
     Background = "rbxassetid://81943489858207",
-    BackgroundImageTransparency = 0.65,
+    BackgroundImageTransparency = 0.60,
     BackgroundColor3 = Color3.fromRGB(255, 253, 240),
     HideSearchBar = true, Accent=Color3.fromRGB(255, 235, 140),
-    OpenButton={Title="CHOCOFRZ", Icon="sword", Enabled=true, Draggable=true, OnlyMobile=false, CornerRadius=UDim.new(1,0), StrokeThickness=2, StrokeColor=Color3.fromRGB(255, 235, 140), Scale=1},
+    OpenButton={Title="CHOCOFRZ🍰", Icon="sword", Enabled=true, Draggable=true, OnlyMobile=false, CornerRadius=UDim.new(1,0), StrokeThickness=2, StrokeColor=Color3.fromRGB(255, 235, 140), Scale=1},
 })
 pcall(function() AplicarColor(ColorAccent) end)
 
@@ -2013,7 +2013,7 @@ H:Space({Size=12})
 local Cr = Window:Tab({Title="Creditos", Icon="award"})
 Cr:Section({Title="Agradecimientos", TextSize=20}); Cr:Space({Size=6})
 local CG=Cr:Group({})
-CG:Paragraph({Title="Creador", Desc="Takemichi_01x\n(c) 2026", Image="code", ImageSize=16}); CG:Space({Size=10})
+CG:Paragraph({Title="Creador", Desc="NA\n(c) 2026", Image="code", ImageSize=16}); CG:Space({Size=10})
 CG:Paragraph({Title="UI Library", Desc="WindUI v1.6.65\nFootagesus", Image="book", ImageSize=16})
 Cr:Space({Size=8})
 Cr:Paragraph({Title="Gracias por usar", Desc="Disfruta el script!", Image="heart", ImageSize=16})
